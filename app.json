@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "snowball-app",
+    "slug": "snowball",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon-20@2x.png",
+    "scheme": "snowballapp",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "requireFullScreen": true,
+      "bundleIdentifier": "com.dautubenvung.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "UIDeviceFamily": [1, 1],
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon-20@2x.png",
+        "backgroundColor": "#000000"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.dautubenvung.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/icon-20@2x.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/icon-20@2x.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000000"
+        }
+      ],
+      "expo-font",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d693fda0-6611-48a7-ab7e-71cd74a43400"
+      }
+    },
+    "owner": "silinh66"
+  }
+}
