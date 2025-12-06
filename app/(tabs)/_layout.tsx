@@ -71,7 +71,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="community"
         options={{
-          title: "Community",
+          title: "Cộng đồng",
           tabBarIcon: ({ color }) => <CommunityIcon color={color} size={24} />,
         }}
       />

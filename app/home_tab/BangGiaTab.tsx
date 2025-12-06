@@ -386,6 +386,8 @@ export default function BangGiaTab() {
   // ------------- FAV LIST: load function & mount/focus handlers -------------
   const loadFavorites = useCallback(
     async (stockDataToMatch: StockData[]) => {
+      if (!isAuthenticated) return;
+
       try {
         const res = await axiosClient.get("/user/favorites");
         if (res?.data?.success) {
@@ -437,20 +439,14 @@ export default function BangGiaTab() {
         }
       } catch (err: any) {
         console.error("Load favorites error", err);
-        // If unauthorized, optionally redirect to login (handled elsewhere)
-        // if (err?.response?.status === 401) {
-        //   try {
-        //     const currentRoute = { pathname: '/home_tab/BangGiaTab' };
-        //     await AsyncStorage.setItem('PREVIOUS_ROUTE', JSON.stringify(currentRoute));
-        //     await logout();
-        //     router.push('/auth/login');
-        //   } catch (e) {
-        //     console.warn('Error handling 401', e);
-        //   }
-        // }
+        // If unauthorized, clear favorites
+        if (err?.response?.status === 401) {
+          setFavorites([]);
+          favoritesRef.current = new Map();
+        }
       }
     },
-    [logout, router]
+    [isAuthenticated, logout, router]
   );
 
   const allStockDataRef = useRef<StockData[]>([]);
@@ -670,7 +666,7 @@ export default function BangGiaTab() {
       styles.tab,
       activeTab === tabName && styles.tabActive,
       activeTab !== tabName &&
-        (isDark ? styles.tabInactiveDark : styles.tabInactiveLight),
+      (isDark ? styles.tabInactiveDark : styles.tabInactiveLight),
     ],
     [activeTab, isDark]
   );
@@ -681,8 +677,8 @@ export default function BangGiaTab() {
       activeTab === tabName
         ? styles.tabTextActive
         : {
-            color: isDark ? colors.textSecondary : colors.textLightSecondary,
-          },
+          color: isDark ? colors.textSecondary : colors.textLightSecondary,
+        },
     ],
     [activeTab, isDark]
   );
@@ -1065,7 +1061,7 @@ export default function BangGiaTab() {
                   style={[
                     styles.timeFrameOption,
                     selectedTimeFrame === option.value &&
-                      styles.timeFrameOptionActive,
+                    styles.timeFrameOptionActive,
                     {
                       borderBottomColor: isDark
                         ? colors.border

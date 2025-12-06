@@ -9,6 +9,7 @@ import {
   Platform,
   StatusBar,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
@@ -17,14 +18,17 @@ import { Image } from "expo-image";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { postsApi } from "../../api/posts";
-import { Topic } from "../../api/types";
+import { Topic } from "../../api/topics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosClient from "@/api/request";
 import { formatThousands, formatToTy } from "@/utils/formatNumber";
 import { newsApi, NewsItem } from "../../api/news";
 import { CreateTopicModal } from "../../components/CreateTopicModal";
 import { TopicItem } from "../../components/TopicItem";
+import { ForumListItem } from "../../components/ForumListItem";
+import { FilterBar } from "../../components/FilterBar";
 import { topicsApi, Topic as TopicType } from "../../api/topics";
+import { LIST_NHOM_NGANH } from "../home_tab/constants";
 
 // Type definition for stock data
 type StockData = {
@@ -42,66 +46,10 @@ type StockData = {
   f: number;
 };
 
-// This component represents the top navbar with tabs (主, 推荐, etc.)
-const NavTabs = () => {
-  const router = useRouter();
-  const { theme, toggleTheme } = useTheme();
-  const tabs = ["Trang chủ", "Đề xuất", "Tuyển chọn", "Tin nóng", "Tin nhanh"];
-  const [activeTab, setActiveTab] = React.useState(3); // Set "Hot" as active
 
-  const handleAccountPress = () => {
-    router.push("/account" as any);
-  };
 
-  return (
-    <View
-      style={[
-        styles.navTabsContainer,
-        {
-          backgroundColor: theme.colors.tabBarBackground,
-          borderBottomColor: theme.colors.border,
-        },
-      ]}
-    >
-      {tabs.map((tab, index) => (
-        <TouchableOpacity
-          key={index}
-          style={[styles.tabItem, activeTab === index && styles.activeTabItem]}
-          onPress={() => setActiveTab(index)}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              { color: theme.colors.tabBarInactive },
-              activeTab === index && {
-                color: theme.colors.tabBarActive,
-                fontWeight: "600",
-              },
-            ]}
-          >
-            {tab}
-          </Text>
-        </TouchableOpacity>
-      ))}
-      <TouchableOpacity style={styles.searchIcon}>
-        <MaterialIcons name="search" size={22} color={theme.colors.text} />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.messageIcon}>
-        <MaterialIcons name="mail" size={22} color={theme.colors.text} />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.accountIcon} onPress={handleAccountPress}>
-        <MaterialIcons
-          name="account-circle"
-          size={24}
-          color={theme.colors.text}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.themeIcon} onPress={toggleTheme}>
-        <MaterialIcons name="style" size={22} color={theme.colors.text} />
-      </TouchableOpacity>
-    </View>
-  );
-};
+// Simple Pagination Component removed
+
 
 // Define types for props
 type StockCardProps = {
@@ -118,8 +66,8 @@ const StockCard = ({ name, change, isPositive }: StockCardProps) => {
       ? theme.colors.stockCardPositive
       : "#ffebee"
     : theme.mode === "dark"
-    ? theme.colors.stockCardNegative
-    : "#e0f2f1";
+      ? theme.colors.stockCardNegative
+      : "#e0f2f1";
   const textColor = isPositive
     ? theme.colors.stockTextPositive
     : theme.colors.stockTextNegative;
@@ -301,6 +249,16 @@ export default function CommunityScreen() {
   const [createTopicModalVisible, setCreateTopicModalVisible] = useState(false);
   const [realTopics, setRealTopics] = useState<TopicType[]>([]);
   const [topicsLoading, setTopicsLoading] = useState(false);
+
+  // New state for refactoring
+  const [sortLike, setSortLike] = useState<string>("newest");
+  const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+  const [posts, setPosts] = useState<Topic[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
+  const allPostsRef = React.useRef<Topic[]>([]);
+  const scrollViewRef = React.useRef<FlatList>(null);
 
   // Fetch stock data similar to CoPhieuTab
   const fetchStockData = async () => {
@@ -575,32 +533,109 @@ export default function CommunityScreen() {
     router.push(`/post-detail?postId=${topicId}&scrollToComments=true`);
   };
 
-  // Fetch topics when component mounts
+
+
+  // Handle sort change
   useEffect(() => {
-    const fetchTopics = async () => {
-      try {
-        setLoading(true);
-        const response = await postsApi.getAllTopics({
+    setPosts([]);
+    setPage(1);
+    allPostsRef.current = [];
+    listPosts(sortLike, 1);
+  }, [sortLike]);
+
+  // Helper to get the symbol from a topic
+  const getSymbol = (topic: Topic) => {
+    if (topic.symbol_name) return topic.symbol_name;
+    // Try to find first 3-letter uppercase word in description
+    const match = topic.description?.match(/\b[A-Z]{3}\b/);
+    return match ? match[0] : "";
+  };
+
+  const listPosts = async (currentSort: string, pageNum: number) => {
+    // if (posts.length === 0) setLoading(true); // Removed to prevent loading on tab switch
+    try {
+      if (allPostsRef.current.length === 0) {
+        const res = await postsApi.getAllTopics({
           page: 1,
-          pageSize: 20,
-          sortLike: "newest",
+          pageSize: 100, // Fetch more to simulate "all" for local slicing if needed, or rely on API pagination
+          sortLike: currentSort as "newest" | "more-interaction",
         });
-        setTopics(response.data.topics);
 
-        // Clear the refresh flag after fetching
-        await AsyncStorage.removeItem("refreshPosts");
-      } catch (err) {
-        setError("Failed to load topics");
-        console.error("Error fetching topics:", err);
-      } finally {
-        setLoading(false);
+        if (res && res.data && res.data.topics) {
+          // Map image to expected format if needed
+          const mappedTopics = res.data.topics.map((t: any) => ({
+            ...t,
+            image: Array.isArray(t.image) && typeof t.image[0] === 'string'
+              ? t.image.map((url: string) => ({ url }))
+              : t.image
+          }));
+
+          allPostsRef.current = mappedTopics;
+        } else {
+          allPostsRef.current = [];
+        }
       }
-    };
 
-    fetchTopics();
-    fetchStockData(); // Fetch stock data when component mounts
-    fetchRealTopics(); // Fetch real topics from new API
-  }, [refreshFlag]);
+      // Apply Filters
+      let filtered = allPostsRef.current;
+
+      if (selectedSymbol) {
+        filtered = filtered.filter(t => getSymbol(t) === selectedSymbol);
+      }
+
+      if (selectedIndustry) {
+        // Find list of codes for this industry
+        let industryCodes: string[] = [];
+        Object.values(LIST_NHOM_NGANH).forEach((industry: any) => {
+          if (industry.industryName === selectedIndustry) {
+            industryCodes = industry.listCode;
+          }
+        });
+
+        if (industryCodes.length > 0) {
+          filtered = filtered.filter(t => industryCodes.includes(getSymbol(t)));
+        }
+      }
+
+      setTotal(filtered.length);
+
+      // Slice locally for infinite scroll (show up to current page * pageSize)
+      const pageSize = 20;
+      const end = pageNum * pageSize;
+      const slicedPosts = filtered.slice(0, end);
+
+      setPosts(slicedPosts);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    listPosts(sortLike, newPage);
+  };
+
+  // Effect for Sort and Refresh: Clear cache and fetch new data
+  useEffect(() => {
+    allPostsRef.current = [];
+    setPage(1);
+    listPosts(sortLike, 1);
+    scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }, [sortLike, refreshFlag]);
+
+  // Effect for Filters: Reset page and re-apply filters (using existing cache)
+  useEffect(() => {
+    setPage(1);
+    listPosts(sortLike, 1);
+    scrollViewRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }, [selectedIndustry, selectedSymbol]);
+
+  // Initial Stock Data Fetch
+  useEffect(() => {
+    fetchStockData();
+  }, []);
 
   // Check for refresh flag periodically
   useEffect(() => {
@@ -621,9 +656,8 @@ export default function CommunityScreen() {
       <StatusBar
         barStyle={theme.mode === "dark" ? "light-content" : "dark-content"}
       />
-      <NavTabs />
 
-      {loading ? (
+      {loading && posts.length === 0 ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
@@ -634,185 +668,192 @@ export default function CommunityScreen() {
           </Text>
         </View>
       ) : (
-        <ScrollView
-          style={[
-            styles.scrollView,
-            { backgroundColor: theme.colors.background },
-          ]}
-        >
-          {/* Stock Cards Row */}
-          <ScrollView
-            style={styles.globalIndicesContainer}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-          >
-            {vietnameseIndices.map((index, indexKey) => {
-              const isPositive = (index.dc || 0) >= 0;
-              const strokeColor = isPositive ? "#05B168" : "#E86066";
-
-              // Format volume (dve) to billions
-              const formatVolume = (volume: number) => {
-                const inBillion = volume / 1000000000000;
-                return `${inBillion.toFixed(1)} K tỷ`;
-              };
-
-              // Format price
-              const formatPrice = (price: number) => {
-                return price.toFixed(2);
-              };
-
-              // Format change
-              const formatChange = (change: number) => {
-                const sign = change >= 0 ? "+" : "";
-                return `${sign}${change.toFixed(2)}`;
-              };
-
-              // Format change percent
-              const formatChangePercent = (changePercent: number) => {
-                const sign = changePercent >= 0 ? "+" : "";
-                return `${sign}${changePercent.toFixed(2)}%`;
-              };
-
-              // Define gradient colors and border colors based on index position
-              const getGradientAndBorderColors = (indexPosition: number) => {
-                const remainder = indexPosition % 3;
-
-                if (remainder === 0) {
-                  return {
-                    gradientColors: ["#112C26", "#121317"] as [string, string],
-                    borderColor: "#112B25",
-                  };
-                } else if (remainder === 1) {
-                  return {
-                    gradientColors: ["#33142C", "#121317"] as [string, string],
-                    borderColor: "#33142C",
-                  };
-                } else {
-                  return {
-                    gradientColors: ["#332414", "#121317"] as [string, string],
-                    borderColor: "#332414",
-                  };
-                }
-              };
-
-              const colorConfig = getGradientAndBorderColors(indexKey);
-
-              return (
-                <LinearGradient
-                  key={indexKey}
-                  colors={
-                    theme?.mode === "dark"
-                      ? colorConfig.gradientColors
-                      : ["#F4F5F6", "#F4F5F6"]
-                  }
-                  style={[
-                    styles.indexCard,
-                    {
-                      borderColor:
-                        theme?.mode === "dark"
-                          ? colorConfig.borderColor
-                          : "#F4F5F6",
-                    },
-                  ]}
-                  start={{ x: 0.089, y: 0 }}
-                  end={{ x: 0.531, y: 1 }}
-                >
-                  <Text
-                    style={[styles.indexTitle, { color: theme.colors.text }]}
-                  >
-                    {index.c}
-                  </Text>
-                  <Text style={styles.indexValue}>
-                    {formatThousands(index.p)}
-                  </Text>
-                  <View style={styles.indexChangeContainer}>
-                    <Text style={[styles.indexChange, { color: strokeColor }]}>
-                      {formatChange(index.dc)}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.indexChangePercent,
-                        { color: strokeColor },
-                      ]}
-                    >
-                      {formatChangePercent(index.dcp)}
-                    </Text>
-                  </View>
-                  <Text style={styles.indexVolume}>
-                    GT: {formatToTy(index.dve)}
-                  </Text>
-                </LinearGradient>
-              );
-            })}
-
-            {/* Fallback to static data if no API data */}
-            {vietnameseIndices.length === 0 && (
-              <>
-                <LinearGradient
-                  colors={["#4A4A4C", "#2A2A2C"]}
-                  style={styles.indexCard}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                >
-                  <Text style={styles.indexTitle}>VNIndex</Text>
-                  <Text style={styles.indexValue}>1660.00</Text>
-                  <View style={styles.indexChangeContainer}>
-                    <Text style={styles.indexChange}>-6.09</Text>
-                    <Text style={styles.indexChangePercent}>-0.37%</Text>
-                  </View>
-                </LinearGradient>
-
-                <LinearGradient
-                  colors={["#4A4A4C", "#2A2A2C"]}
-                  style={styles.indexCard}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                >
-                  <Text style={styles.indexTitle}>HNXIndex</Text>
-                  <Text style={styles.indexValue}>276.27</Text>
-                  <View style={styles.indexChangeContainer}>
-                    <Text style={styles.indexChange}>-1.38</Text>
-                    <Text style={styles.indexChangePercent}>-0.50%</Text>
-                  </View>
-                </LinearGradient>
-
-                <LinearGradient
-                  colors={["#4A4A4C", "#2A2A2C"]}
-                  style={styles.indexCard}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                >
-                  <Text style={styles.indexTitle}>VN30</Text>
-                  <Text style={styles.indexValue}>1850.80</Text>
-                  <View style={styles.indexChangeContainer}>
-                    <Text style={styles.indexChange}>-7.87</Text>
-                    <Text style={styles.indexChangePercent}>-0.42%</Text>
-                  </View>
-                </LinearGradient>
-              </>
-            )}
-          </ScrollView>
-
-          {/* Hot Topics Section */}
-          <HotTopics />
-
-          {/* Real Topics from new API */}
-          {topicsLoading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color={theme.colors.primary} />
-            </View>
-          ) : (
-            realTopics.map((topic) => (
-              <TopicItem
-                key={topic.topic_id}
-                topic={topic}
-                onPress={handleTopicPress}
-                onCommentPress={handleTopicCommentPress}
-                onLikeUpdate={fetchRealTopics}
-              />
-            ))
+        <FlatList
+          ref={scrollViewRef}
+          data={posts}
+          keyExtractor={(item, index) => item.topic_id?.toString() || index.toString()}
+          renderItem={({ item, index }) => (
+            <ForumListItem
+              topic={item}
+              onPress={handleTopicPress}
+              index={index}
+            />
           )}
-        </ScrollView>
+          contentContainerStyle={[
+
+          ]}
+          onEndReached={() => {
+            if (posts.length < total) {
+              handlePageChange(page + 1);
+            }
+          }}
+          onEndReachedThreshold={0.5}
+          ListHeaderComponent={
+            <View style={{ flex: 1 }}>
+              {/* Stock Cards Row */}
+              <ScrollView
+                style={styles.globalIndicesContainer}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+              >
+                {vietnameseIndices.map((index, indexKey) => {
+                  const isPositive = (index.dc || 0) >= 0;
+                  const strokeColor = isPositive ? "#05B168" : "#E86066";
+
+                  // Format volume (dve) to billions
+                  const formatVolume = (volume: number) => {
+                    const inBillion = volume / 1000000000000;
+                    return `${inBillion.toFixed(1)} K tỷ`;
+                  };
+
+                  // Format price
+                  const formatPrice = (price: number) => {
+                    return price.toFixed(2);
+                  };
+
+                  // Format change
+                  const formatChange = (change: number) => {
+                    const sign = change >= 0 ? "+" : "";
+                    return `${sign}${change.toFixed(2)}`;
+                  };
+
+                  // Format change percent
+                  const formatChangePercent = (changePercent: number) => {
+                    const sign = changePercent >= 0 ? "+" : "";
+                    return `${sign}${changePercent.toFixed(2)}%`;
+                  };
+
+                  // Define gradient colors and border colors based on index position
+                  const getGradientAndBorderColors = (indexPosition: number) => {
+                    const remainder = indexPosition % 3;
+
+                    if (remainder === 0) {
+                      return {
+                        gradientColors: ["#112C26", "#121317"] as [string, string],
+                        borderColor: "#112B25",
+                      };
+                    } else if (remainder === 1) {
+                      return {
+                        gradientColors: ["#33142C", "#121317"] as [string, string],
+                        borderColor: "#33142C",
+                      };
+                    } else {
+                      return {
+                        gradientColors: ["#332414", "#121317"] as [string, string],
+                        borderColor: "#332414",
+                      };
+                    }
+                  };
+
+                  const colorConfig = getGradientAndBorderColors(indexKey);
+
+                  return (
+                    <LinearGradient
+                      key={indexKey}
+                      colors={
+                        theme?.mode === "dark"
+                          ? colorConfig.gradientColors
+                          : ["#F4F5F6", "#F4F5F6"]
+                      }
+                      style={[
+                        styles.indexCard,
+                        {
+                          borderColor:
+                            theme?.mode === "dark"
+                              ? colorConfig.borderColor
+                              : "#F4F5F6",
+                        },
+                      ]}
+                      start={{ x: 0.089, y: 0 }}
+                      end={{ x: 0.531, y: 1 }}
+                    >
+                      <Text
+                        style={[styles.indexTitle, { color: theme.colors.text }]}
+                      >
+                        {index.c}
+                      </Text>
+                      <Text style={styles.indexValue}>
+                        {formatThousands(index.p)}
+                      </Text>
+                      <View style={styles.indexChangeContainer}>
+                        <Text style={[styles.indexChange, { color: strokeColor }]}>
+                          {formatChange(index.dc)}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.indexChangePercent,
+                            { color: strokeColor },
+                          ]}
+                        >
+                          {formatChangePercent(index.dcp)}
+                        </Text>
+                      </View>
+                      <Text style={styles.indexVolume}>
+                        GT: {formatToTy(index.dve)}
+                      </Text>
+                    </LinearGradient>
+                  );
+                })}
+
+                {/* Fallback to static data if no API data */}
+                {vietnameseIndices.length === 0 && (
+                  <>
+                    <LinearGradient
+                      colors={["#4A4A4C", "#2A2A2C"]}
+                      style={styles.indexCard}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
+                    >
+                      <Text style={styles.indexTitle}>VNIndex</Text>
+                      <Text style={styles.indexValue}>1660.00</Text>
+                      <View style={styles.indexChangeContainer}>
+                        <Text style={styles.indexChange}>-6.09</Text>
+                        <Text style={styles.indexChangePercent}>-0.37%</Text>
+                      </View>
+                    </LinearGradient>
+
+                    <LinearGradient
+                      colors={["#4A4A4C", "#2A2A2C"]}
+                      style={styles.indexCard}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
+                    >
+                      <Text style={styles.indexTitle}>HNXIndex</Text>
+                      <Text style={styles.indexValue}>276.27</Text>
+                      <View style={styles.indexChangeContainer}>
+                        <Text style={styles.indexChange}>-1.38</Text>
+                        <Text style={styles.indexChangePercent}>-0.50%</Text>
+                      </View>
+                    </LinearGradient>
+
+                    <LinearGradient
+                      colors={["#4A4A4C", "#2A2A2C"]}
+                      style={styles.indexCard}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
+                    >
+                      <Text style={styles.indexTitle}>VN30</Text>
+                      <Text style={styles.indexValue}>1850.80</Text>
+                      <View style={styles.indexChangeContainer}>
+                        <Text style={styles.indexChange}>-7.87</Text>
+                        <Text style={styles.indexChangePercent}>-0.42%</Text>
+                      </View>
+                    </LinearGradient>
+                  </>
+                )}
+              </ScrollView>
+
+              <FilterBar
+                currentSort={sortLike}
+                onSortChange={setSortLike}
+                selectedIndustry={selectedIndustry}
+                onIndustryChange={setSelectedIndustry}
+                selectedSymbol={selectedSymbol}
+                onSymbolChange={setSelectedSymbol}
+              />
+            </View>
+          }
+        />
       )}
 
       {/* Floating Action Button */}
@@ -1332,7 +1373,7 @@ const styles = StyleSheet.create({
     // Color will be set dynamically based on positive/negative
   },
   indexVolume: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "400",
     color: "#ABADBA", // Light gray for volume
     lineHeight: 16,

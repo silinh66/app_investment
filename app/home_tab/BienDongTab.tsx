@@ -3470,7 +3470,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   indexVolume: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "400",
     color: "#c",
     lineHeight: 16,

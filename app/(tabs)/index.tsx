@@ -20,7 +20,7 @@ export const listTabs = [
   { key: "bien-dong", title: "Trang chủ" },
   { key: "co-phieu", title: "Cổ phiếu" },
   { key: "bang-gia", title: "Biến động" },
-  { key: "tin-tuc", title: "Tin tức" },
+  // { key: "tin-tuc", title: "Tin tức" },
   { key: "thi-truong", title: "Thị trường" },
   { key: "tien-te", title: "Tiền tệ" },
 ];

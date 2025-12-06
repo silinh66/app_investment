@@ -397,8 +397,10 @@ export const FilterModal: React.FC<FilterModalProps> = ({
                     style={[
                       styles.criteriaItem,
                       {
-                        borderBottomColor:
-                          theme.mode === "dark" ? "#30323B" : "#ECECEF",
+                        // borderBottomColor:
+                        // theme.mode === "dark" ? "#30323B" : "#ECECEF",
+                        borderBottomColor: 'red',
+                        // borderBottomColor: theme.colors.border,
                       },
                     ]}
                     onPress={() => onToggle(criterion)}
@@ -507,11 +509,8 @@ export const FilterModal: React.FC<FilterModalProps> = ({
                         style={[
                           styles.criteriaItem,
                           {
-                            // backgroundColor: stagedIds.includes(criterion.id)
-                            //   ? theme.colors.backgroundTabActive
-                            //   : theme.colors.backgroundTab,
-                            borderBottomColor:
-                              theme.mode === "dark" ? "#30323B" : "#ECECEF",
+                            backgroundColor: theme.colors.background,
+                            borderBottomColor: theme.colors.border
                           },
                         ]}
                         onPress={() => onToggle(criterion)}
@@ -538,8 +537,8 @@ export const FilterModal: React.FC<FilterModalProps> = ({
                                 isInMyFilters(criterion.label)
                                   ? theme.colors.primary
                                   : theme.mode === "dark"
-                                  ? "#40424F"
-                                  : "#D0D2D8"
+                                    ? "#40424F"
+                                    : "#D0D2D8"
                               }
                             />
                           </TouchableOpacity>
