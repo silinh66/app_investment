@@ -21,56 +21,56 @@ export default function AccountScreen() {
 
   // Menu items data
   const menuItems = [
-    { 
-      id: 'advance-quote', 
-      icon: <MaterialIcons name="diamond" size={24} color={theme.colors.iconColor} />, 
+    {
+      id: 'advance-quote',
+      icon: <MaterialIcons name="diamond" size={24} color={theme.colors.iconColor} />,
       title: 'Advance Quote Service',
       onPress: () => console.log('Advance Quote Service')
     },
-    { 
-      id: 'commissions', 
-      icon: <MaterialIcons name="receipt-long" size={24} color={theme.colors.iconColor} />, 
+    {
+      id: 'commissions',
+      icon: <MaterialIcons name="receipt-long" size={24} color={theme.colors.iconColor} />,
       title: 'Commissions&Fees Calculator',
       onPress: () => console.log('Commissions&Fees Calculator')
     },
-    { 
-      id: 'activity', 
-      icon: <MaterialIcons name="timeline" size={24} color={theme.colors.iconColor} />, 
+    {
+      id: 'activity',
+      icon: <MaterialIcons name="timeline" size={24} color={theme.colors.iconColor} />,
       title: 'Activity Center',
       onPress: () => console.log('Activity Center')
     },
-    { 
-      id: 'rewards', 
-      icon: <MaterialIcons name="card-giftcard" size={24} color={theme.colors.iconColor} />, 
+    {
+      id: 'rewards',
+      icon: <MaterialIcons name="card-giftcard" size={24} color={theme.colors.iconColor} />,
       title: 'Rewards',
       onPress: () => console.log('Rewards')
     },
-    { 
-      id: 'drafts', 
-      icon: <MaterialIcons name="drafts" size={24} color={theme.colors.iconColor} />, 
+    {
+      id: 'drafts',
+      icon: <MaterialIcons name="drafts" size={24} color={theme.colors.iconColor} />,
       title: 'Hộp thư nháp',
       onPress: () => console.log('Drafts')
     },
-    { 
-      id: 'help', 
-      icon: <MaterialIcons name="help" size={24} color={theme.colors.iconColor} />, 
+    {
+      id: 'help',
+      icon: <MaterialIcons name="help" size={24} color={theme.colors.iconColor} />,
       title: 'Trung tâm trợ giúp',
       onPress: () => console.log('Help Center')
     },
-    { 
-      id: 'feedback', 
-      icon: <MaterialIcons name="email" size={24} color={theme.colors.iconColor} />, 
+    {
+      id: 'feedback',
+      icon: <MaterialIcons name="email" size={24} color={theme.colors.iconColor} />,
       title: 'Feedback',
       onPress: () => console.log('Feedback')
     },
-    { 
-      id: 'settings', 
-      icon: <MaterialIcons name="settings" size={24} color={theme.colors.iconColor} />, 
+    {
+      id: 'settings',
+      icon: <MaterialIcons name="settings" size={24} color={theme.colors.iconColor} />,
       title: 'Setting',
       onPress: () => console.log('Settings')
     },
   ];
-  
+
   // Footer items data
   const footerItems = [
     {
@@ -101,14 +101,14 @@ export default function AccountScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar barStyle={theme.mode === 'dark' ? 'light-content' : 'dark-content'} />
-      
+
       {/* Blue Header */}
       <View style={[styles.header, { backgroundColor: theme.colors.headerBackground }]}>
         <SafeAreaView>
           <View style={styles.headerContent}>
-            <View  style={styles.backButton}>
+            <View style={styles.backButton}>
             </View>
-            
+
             <View style={styles.headerIcons}>
               <TouchableOpacity style={styles.headerIconButton} onPress={toggleTheme}>
                 <MaterialIcons name="style" size={24} color="#ffffff" />
@@ -121,11 +121,11 @@ export default function AccountScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          
+
           {/* Profile Info or Login Button */}
           {isAuthenticated && user ? (
             <View style={styles.profileInfo}>
-              <Image 
+              <Image
                 source={{ uri: user.avatar || 'https://i.pravatar.cc/150?img=3' }}
                 style={styles.avatar}
                 contentFit="cover"
@@ -144,7 +144,7 @@ export default function AccountScreen() {
             </View>
           ) : (
             <View style={styles.profileInfo}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.loginButton}
                 onPress={() => router.push('/auth/login')}
               >
@@ -152,7 +152,7 @@ export default function AccountScreen() {
               </TouchableOpacity>
             </View>
           )}
-          
+
           {/* Quick Action Buttons */}
           <View style={styles.quickActions}>
             <TouchableOpacity style={styles.quickActionButton}>
@@ -161,14 +161,14 @@ export default function AccountScreen() {
               </View>
               <Text style={styles.quickActionText}>Giao dịch mô phỏng</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.quickActionButton}>
               <View style={[styles.quickActionIcon, { backgroundColor: theme.colors.quickActionBackground }]}>
                 <MaterialIcons name="school" size={28} color="#ffffff" />
               </View>
               <Text style={styles.quickActionText}>Lớp học đầu tư</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.quickActionButton}>
               <View style={[styles.quickActionIcon, { backgroundColor: theme.colors.quickActionBackground }]}>
                 <MaterialIcons name="headset-mic" size={28} color="#ffffff" />
@@ -178,12 +178,12 @@ export default function AccountScreen() {
           </View>
         </SafeAreaView>
       </View>
-      
+
       {/* Menu Items */}
-      <ScrollView style={[styles.menuContainer, { backgroundColor: theme.colors.menuBackground }]}>
+      <ScrollView style={[styles.menuContainer, { backgroundColor: theme.colors.backgroundCoPhieu }]}>
         {menuItems.map((item) => (
-          <TouchableOpacity 
-            key={item.id} 
+          <TouchableOpacity
+            key={item.id}
             style={[styles.menuItem, { borderBottomColor: theme.colors.border }]}
             onPress={item.onPress}
           >
@@ -194,9 +194,9 @@ export default function AccountScreen() {
             <MaterialIcons name="keyboard-arrow-right" size={24} color={theme.colors.iconColor} />
           </TouchableOpacity>
         ))}
-        
+
         {/* Logout Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.menuItem, { borderBottomColor: theme.colors.border }]}
           onPress={handleLogout}
         >
@@ -206,7 +206,7 @@ export default function AccountScreen() {
           </View>
           <MaterialIcons name="keyboard-arrow-right" size={24} color={theme.colors.iconColor} />
         </TouchableOpacity>
-        
+
         {/* Footer */}
         <View style={[styles.footer, { borderTopColor: theme.colors.border }]}>
           {footerItems.map((item) => (
@@ -219,7 +219,7 @@ export default function AccountScreen() {
             </View>
           ))}
         </View>
-        
+
         {/* Disclaimer */}
         <View style={styles.disclaimer}>
           <Text style={[styles.disclaimerText, { color: theme.colors.disclaimerText }]}>
@@ -340,8 +340,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 18,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1e2732',
+    borderBottomWidth: 0.5,
   },
   menuIconTitle: {
     flexDirection: 'row',

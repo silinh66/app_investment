@@ -600,8 +600,8 @@ export default function ThiTruongTab() {
                           ? "#22304F"
                           : "#CCDDFF"
                         : theme.mode === "dark"
-                        ? "#292B32"
-                        : "#DEDFE3",
+                          ? "#292B32"
+                          : "#DEDFE3",
                   },
                 ]}
                 onPress={() => setTypeLaiSuat("guiTaiQuay")}
@@ -616,8 +616,8 @@ export default function ThiTruongTab() {
                             ? "#99BAFF"
                             : "#004AEA"
                           : theme.mode === "dark"
-                          ? "#E3E4E8"
-                          : "#565B67",
+                            ? "#E3E4E8"
+                            : "#565B67",
                     },
                   ]}
                 >
@@ -635,8 +635,8 @@ export default function ThiTruongTab() {
                           ? "#22304F"
                           : "#CCDDFF"
                         : theme.mode === "dark"
-                        ? "#292B32"
-                        : "#DEDFE3",
+                          ? "#292B32"
+                          : "#DEDFE3",
                   },
                 ]}
                 onPress={() => setTypeLaiSuat("guiOnline")}
@@ -651,8 +651,8 @@ export default function ThiTruongTab() {
                             ? "#99BAFF"
                             : "#004AEA"
                           : theme.mode === "dark"
-                          ? "#E3E4E8"
-                          : "#565B67",
+                            ? "#E3E4E8"
+                            : "#565B67",
                     },
                   ]}
                 >
@@ -834,7 +834,7 @@ export default function ThiTruongTab() {
                   Vùng 1
                 </Text>
                 <Text style={[styles.headerText, { color: "#8E8E93" }]}>
-                  Vùng 2
+                  Vùng 2 (VNĐ/lít)
                 </Text>
               </View>
               <FlatList
@@ -864,56 +864,56 @@ export default function ThiTruongTab() {
           {["giaHeo", "giaThep", "giaGao", "giaCaTra", "giaPhan"].includes(
             curTabTop
           ) && (
-            <>
-              <View
-                style={[
-                  styles.tableHeader,
-                  {
-                    backgroundColor: theme.colors.backgroundCoPhieu,
-                    borderRadius: 12,
-                    marginBottom: 8,
-                  },
-                ]}
-              >
-                <Text
+              <>
+                <View
                   style={[
-                    styles.headerText,
+                    styles.tableHeader,
                     {
-                      color: "#8E8E93",
-                      flex: 1,
-                      textAlign: "left",
-                      paddingLeft: 8,
+                      backgroundColor: theme.colors.backgroundCoPhieu,
+                      borderRadius: 12,
+                      marginBottom: 8,
                     },
                   ]}
                 >
-                  Tên
-                </Text>
-                <Text style={[styles.headerText, { color: "#8E8E93" }]}>
-                  Giá
-                </Text>
-              </View>
-              <FlatList
-                data={getCurrentTabData()}
-                renderItem={renderCommodityItem}
-                keyExtractor={keyExtractor}
-                style={[
-                  styles.tableScrollView,
-                  {
+                  <Text
+                    style={[
+                      styles.headerText,
+                      {
+                        color: "#8E8E93",
+                        flex: 1,
+                        textAlign: "left",
+                        paddingLeft: 8,
+                      },
+                    ]}
+                  >
+                    Tên
+                  </Text>
+                  <Text style={[styles.headerText, { color: "#8E8E93" }]}>
+                    Giá (VNĐ/kg)
+                  </Text>
+                </View>
+                <FlatList
+                  data={getCurrentTabData()}
+                  renderItem={renderCommodityItem}
+                  keyExtractor={keyExtractor}
+                  style={[
+                    styles.tableScrollView,
+                    {
+                      backgroundColor: theme.colors.backgroundCoPhieu,
+                    },
+                  ]}
+                  contentContainerStyle={{
                     backgroundColor: theme.colors.backgroundCoPhieu,
-                  },
-                ]}
-                contentContainerStyle={{
-                  backgroundColor: theme.colors.backgroundCoPhieu,
-                }}
-                removeClippedSubviews={true}
-                maxToRenderPerBatch={10}
-                updateCellsBatchingPeriod={50}
-                initialNumToRender={10}
-                windowSize={5}
-                showsVerticalScrollIndicator={false}
-              />
-            </>
-          )}
+                  }}
+                  removeClippedSubviews={true}
+                  maxToRenderPerBatch={10}
+                  updateCellsBatchingPeriod={50}
+                  initialNumToRender={10}
+                  windowSize={5}
+                  showsVerticalScrollIndicator={false}
+                />
+              </>
+            )}
 
           {/* Giá điện tab - wider name column */}
           {curTabTop === "giaDien" && (
@@ -942,7 +942,7 @@ export default function ThiTruongTab() {
                   Tên
                 </Text>
                 <Text style={[styles.headerText, { color: "#8E8E93" }]}>
-                  Giá
+                  Giá (VNĐ/kWh)
                 </Text>
               </View>
               <FlatList

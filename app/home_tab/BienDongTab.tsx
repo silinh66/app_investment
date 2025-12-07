@@ -6,15 +6,17 @@ import React, {
   useRef,
 } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
+  RefreshControl,
   SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
   Modal,
   Pressable,
+  useWindowDimensions,
+  Dimensions,
 } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -75,6 +77,10 @@ type Snapshot = {
 
 // Fake real-time data simulation flag
 const isFake = false;
+
+// CACHE HTML GLOBALLY
+let CACHED_HTML: string | null = null;
+let HTML_LOAD_PROMISE: Promise<string> | null = null;
 
 // Generate fake real-time stock data with random price changes
 const generateFakeRealtimeData = (baseData: StockNode[]): StockNode[] => {
@@ -173,6 +179,9 @@ export default function BienDongTab() {
   const wsRef = React.useRef<any>(null);
   const reconnectTimeoutRef = React.useRef<number | null>(null);
   const isSubscribedRef = React.useRef(false);
+
+  const [refreshing, setRefreshing] = useState(false);
+  // onRefresh defined later to avoid hoisting issues
 
   // Memoize the sector list to prevent recreations
   const listDropdown = useMemo(
@@ -537,10 +546,6 @@ export default function BienDongTab() {
   };
   const LAYOUT_STORAGE_KEY = "tradingview_layout_global";
 
-  // CACHE HTML GLOBALLY
-  let CACHED_HTML: string | null = null;
-  let HTML_LOAD_PROMISE: Promise<string> | null = null;
-
   useEffect(() => {
     if (!wsRef.current) return;
     if (wsRef.current.readyState !== wsRef.current.OPEN) return;
@@ -611,12 +616,18 @@ export default function BienDongTab() {
   );
 
   const handleStockPress = useCallback(
-    async (stock: StockNode) => {
-      console.log("Stock pressed:", stock);
+    (stock: StockNode) => {
+      // 1. Mở modal ngay lập tức (Optimistic UI)
       setCurrentSymbolTreemap(stock.ticker);
       setSelectedStock(stock);
-      await fetchStockDetail(stock.ticker);
+      // Clear stale data immediately
+      setStockDetail(null);
       setShowStockModal(true);
+
+      // 2. Gọi API lấy detail ngầm
+      fetchStockDetail(stock.ticker).catch((err) => {
+        console.warn("Fetch detail failed silently", err);
+      });
     },
     [fetchStockDetail]
   );
@@ -1835,6 +1846,18 @@ export default function BienDongTab() {
   };
 
   // OPTIMIZED: Memoize treemap computation
+
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    Promise.all([
+      getTreemapData(),
+      fetchStockOverviewData(),
+    ]).finally(() => {
+      setRefreshing(false);
+    });
+  }, [getTreemapData, fetchStockOverviewData]);
+
   const treemapComponent = useMemo(() => {
     const { width } = layout;
     const height = width * 1.4;
@@ -1923,11 +1946,37 @@ export default function BienDongTab() {
                 cell={cell}
                 isDark={isDark}
                 stockOverviewData={stockOverviewData}
-                onPress={() => handleStockPress(n)}
               />
             );
           })}
         </Svg>
+
+        {/* Overlay Pressables for Instant Touch Response */}
+        <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+          {root.leaves().map((leaf: any, index: number) => {
+            const n = leaf.data as StockNode;
+            const x = leaf.x0 + padding;
+            const y = leaf.y0 + padding;
+            const w = Math.max(leaf.x1 - leaf.x0, 0);
+            const h = Math.max(leaf.y1 - leaf.y0, 0);
+
+            return (
+              <Pressable
+                key={`touch-${n.ticker}-${index}`}
+                style={({ pressed }) => ({
+                  position: "absolute",
+                  left: x,
+                  top: y,
+                  width: w,
+                  height: h,
+                  backgroundColor: pressed ? "rgba(0,0,0,0.1)" : "transparent",
+                })}
+                delayPressIn={0}
+                onPress={() => handleStockPress(n)}
+              />
+            );
+          })}
+        </View>
       </View>
     );
   }, [
@@ -2019,15 +2068,18 @@ export default function BienDongTab() {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView
-        style={styles.scrollView}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        keyboardShouldPersistTaps="handled"
+        delaysContentTouches={false}
+      >  <ScrollView
+        style={styles.globalIndicesContainer}
+        horizontal={true}
+        showsHorizontalScrollIndicator={false}
       >
-        {/* Global Market Indices */}
-        <ScrollView
-          style={styles.globalIndicesContainer}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-        >
           {vietnameseIndices.map((index, indexKey) => {
             const isPositive = (index.dc || 0) >= 0;
             const strokeColor = isPositive ? "#05B168" : "#E86066";
@@ -2375,8 +2427,6 @@ export default function BienDongTab() {
 
         <View
           style={[styles.section, { backgroundColor: colors.cardBackground }]}
-          onStartShouldSetResponder={() => true}
-          onMoveShouldSetResponder={() => false}
         >
           {treemapComponent}
         </View>
@@ -2693,18 +2743,22 @@ export default function BienDongTab() {
       <Modal
         visible={showStockModal}
         transparent={true}
-        animationType="fade"
+        transparent={true}
+        animationType="none"
         onRequestClose={() => setShowStockModal(false)}
       >
-        <Pressable
+        <TouchableOpacity
           style={styles.modalOverlay}
-          onPress={() => setShowStockModal(false)}
+          activeOpacity={1}
+          onPressIn={() => setShowStockModal(false)}
         >
-          <Pressable
+          <View
             style={[
               styles.stockModalContent,
               { backgroundColor: isDark ? "#1a1e2b" : "#ffffff" },
             ]}
+            onStartShouldSetResponder={() => true}
+          >
             onPress={(e) => e.stopPropagation()}
           >
             {stockDetail && (
@@ -2953,16 +3007,17 @@ export default function BienDongTab() {
                 <TouchableOpacity
                   style={[
                     styles.closeModalButton,
-                    { backgroundColor: "#007AFF" },
+                    { backgroundColor: theme.colors.primary },
                   ]}
-                  onPress={() => setShowStockModal(false)}
+                  activeOpacity={0.7}
+                  onPressIn={() => setShowStockModal(false)}
                 >
                   <Text style={styles.closeModalText}>Đóng</Text>
                 </TouchableOpacity>
               </>
             )}
-          </Pressable>
-        </Pressable>
+          </View>
+        </TouchableOpacity>
       </Modal>
 
       {/* Trading Detail Modal */}
@@ -3200,7 +3255,7 @@ export default function BienDongTab() {
           </Pressable>
         </Pressable>
       </Modal>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 }
 
@@ -3216,14 +3271,13 @@ type Cell = {
 };
 
 const TreemapCell = React.memo<{
-  cell: Cell;
+  cell: any;
   isDark: boolean;
   stockOverviewData: any[];
-  onPress?: () => void;
 }>(
-  ({ cell, isDark, stockOverviewData, onPress }) => {
-    const [isPressed, setIsPressed] = React.useState(false);
+  ({ cell, isDark, stockOverviewData }) => {
     const { theme } = useTheme();
+
     // Cache color calculation
     const fillColor = React.useMemo(() => {
       const stockData = stockOverviewData.find(
@@ -3246,7 +3300,7 @@ const TreemapCell = React.memo<{
         }
       }
 
-      if (cell.change == null || isNaN(cell.change)) return theme.colors.orange;
+      if (cell.change == null || isNaN(cell.change)) return theme.colors.yellow; // Fallback to yellow if orange missing
       if (cell.change === 0) return theme.colors.yellow;
       if (cell.change > 0) return theme.colors.green;
       if (cell.change < 0) return theme.colors.red;
@@ -3281,20 +3335,6 @@ const TreemapCell = React.memo<{
       return { tickerSize, pctSize, lineGap, pctText };
     }, [cell.w, cell.h, cell.change]);
 
-    const displayColor = React.useMemo(() => {
-      if (!isPressed) return fillColor;
-
-      const hex = fillColor?.replace("#", "");
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
-
-      const dimFactor = 0.7;
-      return `rgb(${Math.floor(r * dimFactor)}, ${Math.floor(
-        g * dimFactor
-      )}, ${Math.floor(b * dimFactor)})`;
-    }, [fillColor, isPressed]);
-
     return (
       <G>
         {/* KHÔNG dùng AnimatedRect - dùng Rect thường */}
@@ -3303,21 +3343,12 @@ const TreemapCell = React.memo<{
           y={cell.y}
           width={Math.max(0, cell.w)}
           height={Math.max(0, cell.h)}
-          fill={displayColor}
+          fill={fillColor}
           stroke={isDark ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.9)"}
           strokeWidth={0.6}
         />
 
-        <Rect
-          x={cell.x}
-          y={cell.y}
-          width={cell.w}
-          height={cell.h}
-          fill="transparent"
-          onPress={onPress}
-          onPressIn={() => setIsPressed(true)}
-          onPressOut={() => setIsPressed(false)}
-        />
+
 
         <SvgText
           x={cell.x + cell.w / 2}
