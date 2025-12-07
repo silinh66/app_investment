@@ -65,8 +65,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
     const items = [
         { id: "newest", label: "Mới nhất", isSort: true, sortValue: "newest" },
-        { id: "featured", label: "Nổi bật nhất", isSort: true, sortValue: "more-interaction" },
-        { id: "symbol", label: selectedSymbol || "Mã ck", hasDropdown: true, isSort: false, action: () => setSymbolModalVisible(true) },
+        { id: "featured", label: "Nổi bật", isSort: true, sortValue: "more-interaction" },
+        { id: "followers", label: "Bài viết theo dõi", isSort: true, sortValue: "followers" },
+        { id: "symbol", label: selectedSymbol || "Mã CK", hasDropdown: true, isSort: false, action: () => setSymbolModalVisible(true) },
         // { id: "industry", label: selectedIndustry || "Ngành", hasDropdown: true, isSort: false, action: () => setIndustryModalVisible(true) },
     ];
 
@@ -84,7 +85,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                             style={[
                                 styles.filterChip,
                                 isActive
-                                    ? styles.chipActive
+                                    ? [styles.chipActive, {
+                                        borderBottomColor: theme.colors.borderBottomTab,
+
+                                    }]
                                     : (theme.mode === 'dark' ? styles.chipInactiveDark : styles.chipInactiveLight),
                                 // Remove border width/color as per new style
                                 { borderWidth: 0 }
@@ -101,7 +105,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                                 style={[
                                     styles.filterText,
                                     isActive
-                                        ? styles.textActive
+                                        ? [styles.textActive, {
+                                            color: theme.colors.activeTabText
+                                        }]
                                         : (theme.mode === 'dark' ? styles.textInactiveDark : styles.textInactiveLight)
                                 ]}
                             >
@@ -211,8 +217,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         paddingVertical: 12,
-        paddingHorizontal: 16,
-        marginRight: 8,
+        paddingHorizontal: 2,
+        marginRight: 0,
         borderBottomWidth: 2,
         borderBottomColor: 'transparent',
     },

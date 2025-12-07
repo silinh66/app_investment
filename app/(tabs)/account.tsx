@@ -17,6 +17,8 @@ import { Image } from 'expo-image';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FilterIcon, SettingIcon } from '@/components/icons';
 
 const { width } = Dimensions.get('window');
 
@@ -32,7 +34,7 @@ export default function AccountScreen() {
   };
 
   const QuickAccessItem = ({ icon, title, onPress }: { icon: any, title: string, onPress?: () => void }) => (
-    <TouchableOpacity style={[styles.quickAccessItem, { backgroundColor: theme.colors.card }]} onPress={onPress}>
+    <TouchableOpacity style={[styles.quickAccessItem, { backgroundColor: theme.colors.backgroundTabActive }]} onPress={onPress}>
       <View style={styles.quickAccessHeader}>
         {icon}
         <MaterialIcons name="keyboard-arrow-right" size={20} color={theme.colors.secondaryText} />
@@ -41,8 +43,11 @@ export default function AccountScreen() {
     </TouchableOpacity>
   );
 
-  const SectionItem = ({ icon, title, onPress, showArrow = true }: { icon: any, title: string, onPress?: () => void, showArrow?: boolean }) => (
-    <TouchableOpacity style={styles.sectionItem} onPress={onPress}>
+  const SectionItem = ({ icon, title, onPress, showArrow = true, showBottomBorder = true }: { icon: any, title: string, onPress?: () => void, showArrow?: boolean, showBottomBorder?: boolean }) => (
+    <TouchableOpacity style={[styles.sectionItem, {
+      borderBottomWidth: showBottomBorder ? 0.5 : 0,
+      borderBottomColor: theme.colors.border,
+    }]} onPress={onPress}>
       <View style={styles.sectionItemLeft}>
         <View style={{ width: 24, alignItems: 'center', marginRight: 12 }}>
           {icon}
@@ -91,7 +96,7 @@ export default function AccountScreen() {
             </View>
           ) : (
             <View style={styles.loggedOutContainer}>
-              <TouchableOpacity style={[styles.authButton, { backgroundColor: '#3B82F6' }]} onPress={() => router.push('/auth/register')}>
+              <TouchableOpacity style={[styles.authButton, { backgroundColor: theme.colors.primary }]} onPress={() => router.push('/auth/register')}>
                 <Text style={styles.authButtonText}>Đăng Ký</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.authButton, { backgroundColor: 'transparent', borderWidth: 1, borderColor: '#333' }]} onPress={() => router.push('/auth/login')}>
@@ -102,7 +107,7 @@ export default function AccountScreen() {
         </View>
 
         {/* Banner */}
-        <LinearGradient
+        {/* <LinearGradient
           colors={['#004CEB', '#E11D48']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -119,6 +124,109 @@ export default function AccountScreen() {
               <Text style={styles.bannerBadgeText}>Giảm 55%</Text>
             </View>
           </View>
+        </LinearGradient> */}
+        {/* Settings Section */}
+        <LinearGradient
+          colors={
+            theme?.mode === "dark"
+              ? ["#112C26", "#121317"]
+              : ["#F4F5F6", "#F4F5F6"]
+          }
+          style={[
+            styles.section,
+            {
+              borderColor: "#235a4e",
+              borderWidth: 1,
+              borderRadius: 12,
+            },
+          ]}
+          start={{ x: 0.089, y: 0 }}
+          end={{ x: 0.531, y: 1 }}
+        >
+
+          {/* <View
+                  style={[styles.section, { backgroundColor: colors.cardBackground }, {
+                    borderColor: "#235a4e",
+                    borderWidth: 1,
+                    borderRadius: 12,
+                  },]}
+                > */}
+          <View
+            style={styles.settingsHeader}
+
+          >
+            <View style={styles.settingsInfo}>
+              <View style={styles.settingsRow}>
+                {/* <Text style={[styles.settingsIcon, { color: theme.mode === 'dark' ? '#FFFFFF' : '#000000' }]}>⚙️</Text> */}
+                <SettingIcon
+                  style={{ marginTop: 8 }}
+                  color={theme.mode === "dark" ? "#fff" : "#000000"}
+                />
+                <Text
+                  style={[
+                    styles.settingsTitle,
+                    { color: theme.mode === "dark" ? "#FFFFFF" : "#000000" },
+                  ]}
+                >
+                  Cài đặt tín hiệu
+                </Text>
+              </View>
+              <Text
+                style={[
+                  styles.settingsSubtitle,
+                  { color: theme.colors.textResult },
+                ]}
+              >
+                Cài đặt cảnh báo hỗ trợ hay kháng cự?
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.unlockButton}
+            // onPress={async () => {
+            //   try {
+            //     const res = await axiosClient.get(
+            //       `/api/alerts/trendline/${symbol}`
+            //     );
+            //     console.log(res);
+
+            //     router.push({
+            //       pathname: "/signal-settings",
+            //       params: {
+            //         symbol: symbol,
+            //       },
+            //     });
+            //   } catch (err: any) {
+            //     console.log("Error:", err);
+            //     // Nếu lỗi 401 Unauthorized → chuyển về màn login
+            //     if (err.response?.status === 401) {
+            //       console.log("Unauthorized - redirecting to login");
+            //       // Store the current route before logout and redirecting to login
+            //       // Since we don't have access to the current route, we'll store a generic object
+            //       const currentRoute = {
+            //         pathname: "/stock-detail",
+            //         params: { symbol },
+            //       };
+            //       await AsyncStorage.setItem(
+            //         "PREVIOUS_ROUTE",
+            //         JSON.stringify(currentRoute)
+            //       );
+            //       await logout();
+            //       router.push("/auth/login");
+            //     } else {
+            //       router.push({
+            //         pathname: "/signal-settings",
+            //         params: {
+            //           symbol: symbol,
+            //         },
+            //       });
+            //     }
+            //   }
+            // }}
+            >
+              <Text style={styles.unlockButtonText}>Cài đặt</Text>
+            </TouchableOpacity>
+          </View>
+          {/* </View> */}
         </LinearGradient>
 
         {/* Truy Cập Nhanh */}
@@ -128,12 +236,29 @@ export default function AccountScreen() {
         <View style={styles.gridContainer}>
           <View style={styles.gridRow}>
             <QuickAccessItem
-              icon={<MaterialCommunityIcons name="calendar-month" size={24} color={theme.colors.text} />}
-              title="Lịch"
+              icon={<MaterialCommunityIcons name="star" size={24} color={theme.colors.text} />}
+              title="Cổ phiếu theo dõi"
             />
             <QuickAccessItem
               icon={<View style={{ borderWidth: 1, borderColor: theme.colors.text, borderRadius: 4, paddingHorizontal: 2 }}><Text style={{ fontSize: 10, color: theme.colors.text, fontWeight: 'bold' }}>AI</Text></View>}
-              title="WarrenAI"
+              title="Tín hiệu đã cài đặt"
+            />
+          </View>
+          <View style={styles.gridRow}>
+            <QuickAccessItem
+              icon={
+                <MaterialCommunityIcons name="account-star" size={24} color={theme.colors.text} />
+
+              }
+              title="Chuyên gia theo dõi"
+            />
+            <QuickAccessItem
+              icon={
+                // <Feather name="trending-up" size={24} color={theme.colors.text} />
+                <MaterialCommunityIcons name="post" size={24} color={theme.colors.text} />
+
+              }
+              title="Bài viết theo dõi"
             />
           </View>
           <View style={styles.gridRow}>
@@ -142,8 +267,8 @@ export default function AccountScreen() {
               title="Tìm Nhà Môi Giới Hàng Đầu"
             />
             <QuickAccessItem
-              icon={<Feather name="trending-up" size={24} color={theme.colors.text} />}
-              title="Cổ Phiếu Bị Đánh Giá Thấp"
+              icon={<MaterialIcons name="monetization-on" size={24} color={theme.colors.text} />}
+              title="Cộng tác viên Affiliate"
             />
           </View>
         </View>
@@ -155,7 +280,7 @@ export default function AccountScreen() {
         <View style={styles.listContainer}>
           <SectionItem
             icon={<MaterialCommunityIcons name="bell-outline" size={22} color={theme.colors.secondaryText} />}
-            title="Cảnh báo"
+            title="Lịch sử cảnh báo"
           />
           <SectionItem
             icon={<MaterialCommunityIcons name="briefcase-outline" size={22} color={theme.colors.secondaryText} />}
@@ -168,6 +293,7 @@ export default function AccountScreen() {
           <SectionItem
             icon={<MaterialCommunityIcons name="chart-line-variant" size={22} color={theme.colors.secondaryText} />}
             title="Tâm lý của Tôi"
+            showBottomBorder={false}
           />
         </View>
 
@@ -176,10 +302,10 @@ export default function AccountScreen() {
           <Text style={[styles.sectionHeaderText, { color: theme.colors.secondaryText }]}>Thị Trường Trực Tiếp</Text>
         </View>
         <View style={styles.listContainer}>
-          <SectionItem
+          {/* <SectionItem
             icon={<MaterialCommunityIcons name="bitcoin" size={22} color={theme.colors.secondaryText} />}
             title="Tiền điện tử"
-          />
+          /> */}
           <SectionItem
             icon={<Ionicons name="stats-chart-outline" size={22} color={theme.colors.secondaryText} />}
             title="Cổ Phiếu Theo Xu Hướng"
@@ -191,6 +317,7 @@ export default function AccountScreen() {
           <SectionItem
             icon={<Ionicons name="analytics-outline" size={22} color={theme.colors.secondaryText} />}
             title="Phân tích & Ý kiến"
+            showBottomBorder={false}
           />
         </View>
 
@@ -204,8 +331,11 @@ export default function AccountScreen() {
             title="Công cụ chuyển đổi tiền tệ"
           />
           <SectionItem
-            icon={<MaterialCommunityIcons name="filter-variant" size={22} color={theme.colors.secondaryText} />}
-            title="Sàng Lọc Cổ Phiếu"
+            icon={
+              // <FilterIcon color={theme.colors.secondaryText} size={22} />
+              <MaterialCommunityIcons name="filter" size={22} color={theme.colors.secondaryText} />
+            }
+            title="Lọc Cổ Phiếu"
           />
           <SectionItem
             icon={<MaterialCommunityIcons name="monitor-dashboard" size={22} color={theme.colors.secondaryText} />}
@@ -214,6 +344,7 @@ export default function AccountScreen() {
           <SectionItem
             icon={<MaterialCommunityIcons name="percent-outline" size={22} color={theme.colors.secondaryText} />}
             title="Giám Sát L.Suất Fed"
+            showBottomBorder={false}
           />
         </View>
 
@@ -221,7 +352,14 @@ export default function AccountScreen() {
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionHeaderText, { color: theme.colors.secondaryText }]}>Thêm</Text>
         </View>
-        <View style={[styles.listContainer, { marginBottom: 40 }]}>
+        <View style={[styles.listContainer, {
+          marginBottom: 40,
+
+        }]}>
+          <SectionItem
+            icon={<MaterialIcons name="monetization-on" size={22} color={theme.colors.secondaryText} />}
+            title="Đăng ký Affiliate"
+          />
           <SectionItem
             icon={<MaterialCommunityIcons name="email-outline" size={22} color={theme.colors.secondaryText} />}
             title="Gửi Phản Hồi"
@@ -235,23 +373,21 @@ export default function AccountScreen() {
             title="Cài đặt"
             onPress={() => setSettingsVisible(true)}
           />
-          <SectionItem
-            icon={<MaterialIcons name="person-add-alt" size={22} color={theme.colors.secondaryText} />}
-            title="Mời thêm bạn bè"
-          />
-          <SectionItem
+
+          {/* <SectionItem
             icon={<MaterialCommunityIcons name="flask-outline" size={22} color={theme.colors.secondaryText} />}
             title="Tham Gia Thử Nghiệm Beta"
           />
           <SectionItem
             icon={<MaterialCommunityIcons name="shield-check-outline" size={22} color={theme.colors.secondaryText} />}
             title="Pháp Lý"
-          />
+          /> */}
           {isAuthenticated && (
             <SectionItem
               icon={<MaterialIcons name="logout" size={22} color={theme.colors.secondaryText} />}
               title="Đăng Xuất"
               onPress={handleLogout}
+              showBottomBorder={false}
             />
           )}
         </View>
@@ -311,6 +447,51 @@ const styles = StyleSheet.create({
   headerIcon: {
     marginLeft: 16,
   },
+  section: {
+    marginHorizontal: 8,
+    marginBottom: 8,
+    borderRadius: 12,
+    padding: 16,
+    paddingVertical: 8
+  },
+  settingsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  settingsInfo: {
+    flex: 1,
+  },
+  settingsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  settingsIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  settingsTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  settingsSubtitle: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  unlockButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginLeft: 12,
+    backgroundColor: "#004CEB",
+    borderWidth: 1,
+    borderColor: "#004CEB",
+  },
+  unlockButtonText: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
   starIconContainer: {
     width: 24,
     height: 24,
@@ -358,7 +539,7 @@ const styles = StyleSheet.create({
   authButton: {
     paddingHorizontal: 20,
     paddingVertical: 8,
-    borderRadius: 4,
+    borderRadius: 16,
     marginRight: 12,
   },
   authButtonText: {

@@ -1,6 +1,6 @@
 import { Tabs, useRouter } from "expo-router";
 import { StyleSheet } from "react-native";
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialIcons, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { FilterIcon, HomeIcon } from "@/components/icons";
 import ViMoIcon from "@/components/icons/ViMoIcon";
@@ -33,15 +33,23 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Trang chủ",
-          tabBarIcon: ({ color }) => <HomeIcon color={color} size={24} />,
+          title: "Thị trường",
+          tabBarIcon: ({ color }) =>
+            // <HomeIcon color={color} size={24} />
+            <Ionicons name="stats-chart-outline" size={20} color={color} />
+
+          ,
         }}
       />
       <Tabs.Screen
         name="filter"
         options={{
           title: "Lọc CP",
-          tabBarIcon: ({ color }) => <FilterIcon color={color} size={24} />,
+          tabBarIcon: ({ color }) =>
+            // <FilterIcon color={color} size={24} />
+            <MaterialCommunityIcons name="filter" size={24} color={color} />
+
+          ,
         }}
         listeners={{
           tabPress: async (e) => {
@@ -65,20 +73,28 @@ export default function TabLayout() {
         name="macro"
         options={{
           title: "Vĩ mô",
-          tabBarIcon: ({ color }) => <ViMoIcon color={color} size={24} />,
+          tabBarIcon: ({ color }) =>
+            // <ViMoIcon color={color} size={24} />
+            // <Ionicons name="stats-chart-outline" size={20} color={color} />
+            <MaterialCommunityIcons name="percent-outline" size={22} color={color} />
+          ,
         }}
       />
       <Tabs.Screen
         name="community"
         options={{
-          title: "Cộng đồng",
-          tabBarIcon: ({ color }) => <CommunityIcon color={color} size={24} />,
+          title: "Diễn đàn",
+          tabBarIcon: ({ color }) =>
+            // <CommunityIcon color={color} size={24} />
+            <MaterialCommunityIcons name="account-group" size={24} color={color} />
+
+          ,
         }}
       />
       <Tabs.Screen
         name="account"
         options={{
-          title: "Tài khoản",
+          title: "Tôi",
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="person" size={24} color={color} />
           ),

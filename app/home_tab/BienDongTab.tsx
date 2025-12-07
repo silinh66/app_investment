@@ -17,6 +17,7 @@ import {
   Pressable,
   useWindowDimensions,
   Dimensions,
+  Animated,
 } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -151,6 +152,19 @@ export default function BienDongTab() {
   const [showStockModal, setShowStockModal] = useState(false);
   const [selectedStock, setSelectedStock] = useState<StockNode | null>(null);
   const [stockDetail, setStockDetail] = useState<any>(null);
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (showStockModal) {
+      scaleAnim.setValue(0);
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [showStockModal]);
+
   const [currentSymbolTreemap, setCurrentSymbolTreemap] = useState<
     string | null
   >(null);
@@ -2752,16 +2766,18 @@ export default function BienDongTab() {
           activeOpacity={1}
           onPressIn={() => setShowStockModal(false)}
         >
-          <View
+          <Animated.View
             style={[
               styles.stockModalContent,
-              { backgroundColor: isDark ? "#1a1e2b" : "#ffffff" },
+              {
+                backgroundColor: isDark ? "#1a1e2b" : "#ffffff",
+                transform: [{ scale: scaleAnim }],
+              },
             ]}
             onStartShouldSetResponder={() => true}
           >
-            onPress={(e) => e.stopPropagation()}
-          >
-            {stockDetail && (
+
+            {
               <>
                 <View style={styles.stockModalHeader}>
                   <View style={styles.stockTitleContainer}>
@@ -2771,7 +2787,7 @@ export default function BienDongTab() {
                         { color: isDark ? "#ffffff" : "#000000" },
                       ]}
                     >
-                      {stockDetail.ticker}
+                      {stockDetail?.ticker}
                     </Text>
                     <Text
                       style={[
@@ -2779,7 +2795,7 @@ export default function BienDongTab() {
                         { color: isDark ? "#8e8e93" : "#666666" },
                       ]}
                     >
-                      {stockDetail.sector}
+                      {stockDetail?.sector}
                     </Text>
                   </View>
                 </View>
@@ -2791,10 +2807,10 @@ export default function BienDongTab() {
                       {
                         color: (() => {
                           const currentPrice =
-                            parseFloat(stockDetail.currentPrice) * 1000;
-                          const reference = parseFloat(stockDetail.reference);
-                          const ceiling = parseFloat(stockDetail.ceiling);
-                          const floor = parseFloat(stockDetail.floor);
+                            parseFloat(stockDetail?.currentPrice) * 1000;
+                          const reference = parseFloat(stockDetail?.reference);
+                          const ceiling = parseFloat(stockDetail?.ceiling);
+                          const floor = parseFloat(stockDetail?.floor);
 
                           if (currentPrice === ceiling)
                             return theme.colors.purple;
@@ -2809,7 +2825,7 @@ export default function BienDongTab() {
                       },
                     ]}
                   >
-                    {stockDetail.currentPrice}
+                    {stockDetail?.currentPrice}
                   </Text>
                   <Text
                     style={[
@@ -2817,10 +2833,10 @@ export default function BienDongTab() {
                       {
                         color: (() => {
                           const currentPrice =
-                            parseFloat(stockDetail.currentPrice) * 1000;
-                          const reference = parseFloat(stockDetail.reference);
-                          const ceiling = parseFloat(stockDetail.ceiling);
-                          const floor = parseFloat(stockDetail.floor);
+                            parseFloat(stockDetail?.currentPrice) * 1000;
+                          const reference = parseFloat(stockDetail?.reference);
+                          const ceiling = parseFloat(stockDetail?.ceiling);
+                          const floor = parseFloat(stockDetail?.floor);
 
                           if (currentPrice === ceiling)
                             return theme.colors.purple;
@@ -2835,10 +2851,10 @@ export default function BienDongTab() {
                       },
                     ]}
                   >
-                    {parseFloat(stockDetail.priceChange) >= 0 ? "+" : ""}
-                    {stockDetail.priceChange} /{" "}
-                    {parseFloat(stockDetail.percentChange) >= 0 ? "+" : ""}
-                    {stockDetail.percentChange}%
+                    {parseFloat(stockDetail?.priceChange) >= 0 ? "+" : ""}
+                    {stockDetail?.priceChange} /{" "}
+                    {parseFloat(stockDetail?.percentChange) >= 0 ? "+" : ""}
+                    {stockDetail?.percentChange}%
                   </Text>
                 </View>
 
@@ -2858,7 +2874,7 @@ export default function BienDongTab() {
                         { color: isDark ? "#ffffff" : "#000000" },
                       ]}
                     >
-                      {stockDetail.ticker}
+                      {stockDetail?.ticker}
                     </Text>
                   </View>
                   <View style={styles.stockDetailRow}>
@@ -2876,7 +2892,7 @@ export default function BienDongTab() {
                         { color: isDark ? "#ffffff" : "#000000" },
                       ]}
                     >
-                      {stockDetail.sector}
+                      {stockDetail?.sector}
                     </Text>
                   </View>
                   <View style={styles.stockDetailRow}>
@@ -2894,10 +2910,10 @@ export default function BienDongTab() {
                         {
                           color: (() => {
                             const currentPrice =
-                              parseFloat(stockDetail.currentPrice) * 1000;
-                            const reference = parseFloat(stockDetail.reference);
-                            const ceiling = parseFloat(stockDetail.ceiling);
-                            const floor = parseFloat(stockDetail.floor);
+                              parseFloat(stockDetail?.currentPrice) * 1000;
+                            const reference = parseFloat(stockDetail?.reference);
+                            const ceiling = parseFloat(stockDetail?.ceiling);
+                            const floor = parseFloat(stockDetail?.floor);
 
                             if (currentPrice === ceiling)
                               return theme.colors.purple;
@@ -2914,7 +2930,7 @@ export default function BienDongTab() {
                         },
                       ]}
                     >
-                      {stockDetail.currentPrice}
+                      {stockDetail?.currentPrice}
                     </Text>
                   </View>
                   <View style={styles.stockDetailRow}>
@@ -2932,10 +2948,10 @@ export default function BienDongTab() {
                         {
                           color: (() => {
                             const currentPrice =
-                              parseFloat(stockDetail.currentPrice) * 1000;
-                            const reference = parseFloat(stockDetail.reference);
-                            const ceiling = parseFloat(stockDetail.ceiling);
-                            const floor = parseFloat(stockDetail.floor);
+                              parseFloat(stockDetail?.currentPrice) * 1000;
+                            const reference = parseFloat(stockDetail?.reference);
+                            const ceiling = parseFloat(stockDetail?.ceiling);
+                            const floor = parseFloat(stockDetail?.floor);
 
                             if (currentPrice === ceiling)
                               return theme.colors.purple;
@@ -2952,10 +2968,10 @@ export default function BienDongTab() {
                         },
                       ]}
                     >
-                      {parseFloat(stockDetail.priceChange) >= 0 ? "+" : ""}
-                      {stockDetail.priceChange} /{" "}
-                      {parseFloat(stockDetail.percentChange) >= 0 ? "+" : ""}
-                      {stockDetail.percentChange}%
+                      {parseFloat(stockDetail?.priceChange) >= 0 ? "+" : ""}
+                      {stockDetail?.priceChange} /{" "}
+                      {parseFloat(stockDetail?.percentChange) >= 0 ? "+" : ""}
+                      {stockDetail?.percentChange}%
                     </Text>
                   </View>
                   <View style={styles.stockDetailRow}>
@@ -2973,7 +2989,7 @@ export default function BienDongTab() {
                         { color: isDark ? "#ffffff" : "#000000" },
                       ]}
                     >
-                      {stockDetail.volume}
+                      {stockDetail?.volume}
                     </Text>
                   </View>
                   <View style={styles.stockDetailRow}>
@@ -2991,7 +3007,7 @@ export default function BienDongTab() {
                         { color: isDark ? "#ffffff" : "#000000" },
                       ]}
                     >
-                      {stockDetail.marketCap}
+                      {stockDetail?.marketCap}
                     </Text>
                   </View>
                 </View>
@@ -3015,8 +3031,8 @@ export default function BienDongTab() {
                   <Text style={styles.closeModalText}>Đóng</Text>
                 </TouchableOpacity>
               </>
-            )}
-          </View>
+            }
+          </Animated.View>
         </TouchableOpacity>
       </Modal>
 
@@ -3778,10 +3794,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     maxHeight: "80%",
+    paddingTop: 14,
   },
   stockModalHeader: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 0,
   },
   stockTitleContainer: {
     alignItems: "center",
@@ -3797,7 +3814,7 @@ const styles = StyleSheet.create({
   },
   stockPriceContainer: {
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 0,
   },
   stockModalPrice: {
     fontSize: 32,
@@ -3809,7 +3826,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   stockDetailsGrid: {
-    marginBottom: 24,
+    marginBottom: 4,
   },
   stockDetailRow: {
     flexDirection: "row",
@@ -3832,7 +3849,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 12,
-    marginBottom: 16,
+    marginBottom: 0,
   },
   viewDetailText: {
     fontSize: 16,
@@ -3844,6 +3861,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#007AFF",
     fontWeight: "600",
+    marginBottom: 2
   },
   closeModalButton: {
     paddingVertical: 12,

@@ -479,6 +479,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
                           theme.mode === "dark"
                             ? theme.colors.backgroundTabActive
                             : "#E5E5E7",
+                        marginTop: 0
                       },
                     ]}
                     onPress={() => toggleFamily(family.familyKey)}
@@ -503,14 +504,15 @@ export const FilterModal: React.FC<FilterModalProps> = ({
 
                   {/* Family Criteria - Only render when expanded */}
                   {isExpanded &&
-                    family.criteria.map((criterion) => (
+                    family.criteria.map((criterion, index) => (
                       <TouchableOpacity
                         key={criterion.id}
                         style={[
                           styles.criteriaItem,
                           {
                             backgroundColor: theme.colors.background,
-                            borderBottomColor: theme.colors.border
+                            borderBottomColor: theme.colors.border,
+                            marginBottom: index === family.criteria.length - 1 ? 12 : 0,
                           },
                         ]}
                         onPress={() => onToggle(criterion)}

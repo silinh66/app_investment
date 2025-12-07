@@ -7,6 +7,7 @@ import {
   View,
   TextInput,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useTheme } from '../../context/ThemeContext';
@@ -14,20 +15,27 @@ import { useAuth } from '../../context/AuthContext';
 import { styles } from './styles';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { Image } from 'react-native';
 
 interface LoginForm {
   email: string;
   password: string;
 }
 
+type LoginStep = 'options' | 'email' | 'password';
+
 const LoginScreen: React.FC = () => {
   const { theme } = useTheme();
   const { login, loading, isAuthenticated, refreshAuthStatus } = useAuth();
+  const [step, setStep] = useState<LoginStep>('options');
   const [showPass, setShowPass] = useState<boolean>(false);
 
   const {
     control,
     handleSubmit,
+    trigger,
+    getValues,
     formState: { errors, isValid },
   } = useForm<LoginForm>({
     mode: "onChange",
@@ -46,19 +54,14 @@ const LoginScreen: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       console.log('Navigating to tabs screen');
-      // Check if there's a previous route stored
       AsyncStorage.getItem('PREVIOUS_ROUTE').then((storedRoute) => {
         if (storedRoute) {
-          // Clear the stored route
           AsyncStorage.removeItem('PREVIOUS_ROUTE');
-          // Parse and navigate to the previous route
           try {
             const route = JSON.parse(storedRoute);
-            console.log('Redirecting to previous route:', route);
-            if(route?.pathname === '/home_tab/BangGiaTab') {              
+            if (route?.pathname === '/home_tab/BangGiaTab') {
               router.back()
             } else {
-              // router.replace(route.pathname || '/(tabs)');
               router.back()
             }
           } catch (e) {
@@ -84,29 +87,38 @@ const LoginScreen: React.FC = () => {
       console.log('Attempting login with:', data.email);
       await login(data.email, data.password);
       console.log('Login successful, refreshing auth status');
-      // Force a refresh of auth status to ensure navigation
       await refreshAuthStatus();
     } catch (error: any) {
       console.log('Login error:', error);
       let errorMessage = 'Login failed. Please try again.';
-      
+
       if (error.response) {
-        // Server responded with error status
         errorMessage = error.response.data?.message || error.response.statusText || errorMessage;
       } else if (error.request) {
-        // Request was made but no response received
         errorMessage = 'Network error. Please check your connection.';
       } else {
-        // Something else happened
         errorMessage = error.message || errorMessage;
       }
-      
+
       Alert.alert('Error', errorMessage);
     }
   };
 
-  const onNavigateToRegister = () => {
-    router.push('/auth/register');
+  const handleEmailContinue = async () => {
+    const isEmailValid = await trigger('email');
+    if (isEmailValid) {
+      setStep('password');
+    }
+  };
+
+  const goBack = () => {
+    if (step === 'password') {
+      setStep('email');
+    } else if (step === 'email') {
+      setStep('options');
+    } else {
+      router.back();
+    }
   };
 
   // Show loading screen if authenticated but still navigating
@@ -119,217 +131,189 @@ const LoginScreen: React.FC = () => {
           alignItems: 'center',
           backgroundColor: theme.colors.background
         }}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={{ 
-            fontSize: 16, 
-            color: theme.colors.text,
-            marginTop: 10
-          }}>
-            Signing in...
-          </Text>
+          <ActivityIndicator size="large" color="#3B82F6" />
         </View>
       </View>
     );
   }
 
-  return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <KeyboardAwareScrollView
-        contentContainerStyle={{ flex: 1, justifyContent: "center" }}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.logo}>
-          {/* Replace with your actual logo */}
-          <Text style={[styles.logoText, { color: theme.colors.text }]}>LOGO</Text>
-        </View>
-        
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>
-            Welcome!
+  const renderOptionsStep = () => (
+    <>
+      <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
+        <Ionicons name="close" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
+
+      <View style={styles.header}>
+        {/* <Text style={styles.logoText}>dautubenvung.vn</Text> */}
+        {/* logo logo_white_blue.png */}
+        <Image
+          source={require('../../assets/images/logo_white_blue.png')}
+          style={styles.logo}
+        />
+        <Text style={styles.title}>Đăng nhập</Text>
+        <Text style={styles.description}>Các tín hiệu đầu tư tuyệt vời đang chờ đón bạn.</Text>
+      </View>
+
+      <View style={styles.content}>
+        <TouchableOpacity style={[styles.socialButton, styles.appleButton,]}>
+          <Ionicons name="logo-apple" size={24} color="#000000" />
+          <Text style={[styles.socialButtonText, styles.appleButtonText]}>Đăng nhập với Apple</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.socialButton, { backgroundColor: theme.colors.card }]}>
+          <Ionicons name="logo-google" size={24} color="#FFFFFF" />
+          <Text style={styles.socialButtonText}>Đăng nhập với Google</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.socialButton, { backgroundColor: theme.colors.card }]} onPress={() => setStep('email')}>
+          <Ionicons name="mail-outline" size={24} color="#FFFFFF" />
+          <Text style={styles.socialButtonText}>Đăng nhập với Email hoặc SĐT</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.socialButton, { backgroundColor: theme.colors.card }]}>
+          <Ionicons name="logo-facebook" size={24} color="#fff" />
+          <Text style={styles.socialButtonText}>Đăng nhập với Facebook</Text>
+        </TouchableOpacity>
+
+        <View style={{ marginTop: 40, alignItems: 'center' }}>
+          <Text style={{ color: '#8E8E93' }}>
+            Chưa có tài khoản? <Text style={{ color: '#3B82F6' }} onPress={() => router.push('/auth/register')}>Đăng Ký</Text>
           </Text>
-          <Text style={[styles.description, { color: theme.colors.secondaryText }]}>
-            Chào mừng bạn tới dautubenvung.vn
-          </Text>
         </View>
-        
-        <View style={styles.content}>
-          <Controller
-            control={control}
-            name="email"
-            rules={{
-              required: 'Vui lòng nhập số điện thoại hoặc email.',
-              pattern: {
-                value: /^([^\s@]+@[^\s@]+\.[^\s@]+|[0-9]{10,11})$/,
-                message: 'Vui lòng nhập email hợp lệ hoặc số điện thoại (10-11 chữ số).'
-              }
-            }}
-            render={({
-              field: { value, onChange, onBlur, ref },
-            }) => {
-              return (
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    ref={ref}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: theme.colors.card,
-                        color: theme.colors.text,
-                        borderColor: theme.colors.border,
-                      },
-                    ]}
-                    keyboardType={"email-address"}
-                    placeholder={"Số điện thoại hoặc tài khoản email"}
-                    placeholderTextColor={theme.colors.secondaryText}
-                  />
-                  <Text style={[styles.inputIcon, { color: theme.colors.iconColor }]}>
-                    @
-                  </Text>
-                  {errors.email?.message ? (
-                    <Text style={styles.errorText}>{errors.email?.message}</Text>
-                  ) : null}
-                </View>
-              );
-            }}
-          />
+      </View>
+    </>
+  );
 
-          <Controller
-            control={control}
-            name="password"
-            rules={{
-              required: 'Vui lòng nhập mật khẩu.',
-              minLength: {
-                value: 6,
-                message: 'Mật khẩu tối thiểu 6 ký tự.'
-              }
-            }}
-            render={({
-              field: { value, onChange, onBlur, ref },
-            }) => (
-              <View style={styles.inputContainer}>
-                <TextInput
-                  ref={ref}
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: theme.colors.card,
-                      color: theme.colors.text,
-                      borderColor: theme.colors.border,
-                    },
-                  ]}
-                  maxLength={20}
-                  placeholder={"Mật khẩu"}
-                  secureTextEntry={!showPass}
-                  placeholderTextColor={theme.colors.secondaryText}
-                />
-                <TouchableOpacity style={styles.eyeIcon} onPress={onShowPass}>
-                  <Text style={[styles.inputIcon, { color: theme.colors.iconColor }]}>
-                    {showPass ? '👁️' : '👁️‍🗨️'}
-                  </Text>
-                </TouchableOpacity>
-                <Text style={[styles.passwordIcon, { color: theme.colors.iconColor }]}>
-                  *
-                </Text>
-                {errors.password?.message ? (
-                  <Text style={styles.errorText}>{errors.password?.message}</Text>
-                ) : null}
-              </View>
-            )}
-          />
+  const renderEmailStep = () => (
+    <>
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
 
-          <View style={styles.actionContainer}>
-            <TouchableOpacity style={styles.forgotPasswordButton}>
-              <Text style={[styles.forgotPasswordText, { color: theme.colors.secondaryText }]}>
-                Quên mật khẩu?
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={[
-                styles.loginButton,
-                {
-                  backgroundColor: isValid
-                    ? theme.colors.primary
-                    : theme.colors.border,
-                },
-              ]}
-              onPress={handleSubmit(onSubmitLogin)}
-              disabled={!isValid || loading}
-            >
-              {loading ? (
-                <ActivityIndicator
-                  color="#fff"
-                  style={{ marginRight: 5 }}
-                />
-              ) : null}
-              <Text style={styles.loginButtonText}>
-                Đăng nhập
-              </Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.registerContainer}>
-            <Text style={[styles.accountText, { color: theme.colors.text }]}>
-              Bạn chưa có tài khoản?
-            </Text>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.registerButton}
-              onPress={onNavigateToRegister}
-            >
-              <Text style={[styles.registerText, { color: theme.colors.primary }]}>
-                Đăng ký
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {/* Tiếp tục dùng app mà không cần đăng nhập */}
-          <TouchableOpacity 
-          activeOpacity={0.8}
-          style={{padding: 4}}
-          onPress={() => {
-            console.log('Navigating to tabs screen');
-      // Check if there's a previous route stored
-      AsyncStorage.getItem('PREVIOUS_ROUTE').then((storedRoute) => {
-        
-        if (storedRoute) {
-          // Clear the stored route
-          AsyncStorage.removeItem('PREVIOUS_ROUTE');
-          // Parse and navigate to the previous route
-          try {
-            const route = JSON.parse(storedRoute);
-            console.log('Redirecting to previous route:', route);
-            if(route?.pathname === '/home_tab/BangGiaTab') {    
-              console.log('Stored routeeeeeeeeeeee:', storedRoute);
-              router.back()
-            } else {
+      <View style={styles.header}>
+        <Text style={styles.title}>Đăng nhập</Text>
+        <Text style={styles.description}>
+          Vui lòng điền email hoặc số điện thoại của bạn để kiểm tra.
+        </Text>
+      </View>
 
-              router.back()
+      <View style={styles.content}>
+        <Text style={styles.inputLabel}>Emai/Số điện thoại</Text>
+        <Controller
+          control={control}
+          name="email"
+          rules={{
+            required: 'Vui lòng nhập số điện thoại hoặc email.',
+            pattern: {
+              value: /^([^\s@]+@[^\s@]+\.[^\s@]+|[0-9]{10,11})$/,
+              message: 'Vui lòng nhập email hợp lệ hoặc số điện thoại.'
             }
-          } catch (e) {
-            console.error('Error parsing previous route:', e);
-            router.replace('/(tabs)');
-          }
-        } else {
-          router.replace('/(tabs)');
-        }
-      }).catch((e) => {
-        console.error('Error retrieving previous route:', e);
-        router.replace('/(tabs)');
-      });
-          }}>
+          }}
+          render={({ field: { value, onChange, onBlur } }) => (
+            <View style={[styles.inputContainer,]}>
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                style={[styles.input, { backgroundColor: theme.colors.card }]}
+                keyboardType="email-address"
+                placeholder="Điền email hoặc số điện thoại của bạn"
+                placeholderTextColor="#666666"
+                autoCapitalize="none"
+              />
+              {errors.email?.message && (
+                <Text style={styles.errorText}>{errors.email?.message}</Text>
+              )}
+            </View>
+          )}
+        />
 
-            <Text style={[{ color: theme.colors.disclaimerText, textAlign: 'center' }]}>
-              Tiếp tục dùng app mà không cần đăng nhập
-            </Text>
+        <TouchableOpacity
+          style={[styles.primaryButton, { backgroundColor: theme.colors.blue }]}
+          onPress={handleEmailContinue}
+        >
+          <Text style={styles.primaryButtonText}>Tiếp tục</Text>
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
+  const renderPasswordStep = () => (
+    <>
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
+
+      <View style={styles.header}>
+        <Text style={styles.title}>Xác nhận đăng nhập</Text>
+        <Text style={styles.description}>Vui lòng nhập mật khẩu của bạn.</Text>
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.inputLabel}>Mật khẩu</Text>
+        <Controller
+          control={control}
+          name="password"
+          rules={{
+            required: 'Vui lòng nhập mật khẩu.',
+            minLength: {
+              value: 6,
+              message: 'Mật khẩu tối thiểu 6 ký tự.'
+            }
+          }}
+          render={({ field: { value, onChange, onBlur } }) => (
+            <View style={styles.inputContainer}>
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                style={styles.input}
+                placeholder="Vui lòng nhập mật khẩu của bạn."
+                placeholderTextColor="#666666"
+                secureTextEntry={!showPass}
+              />
+              <TouchableOpacity style={styles.inputIcon} onPress={onShowPass}>
+                <Ionicons name={showPass ? "eye-off" : "eye"} size={20} color="#8E8E93" />
+              </TouchableOpacity>
+              {errors.password?.message && (
+                <Text style={styles.errorText}>{errors.password?.message}</Text>
+              )}
+            </View>
+          )}
+        />
+
+        <TouchableOpacity
+          style={[styles.primaryButton, { backgroundColor: theme.colors.blue }]}
+          onPress={handleSubmit(onSubmitLogin)}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.primaryButtonText}>Tiếp tục</Text>
+          )}
+        </TouchableOpacity>
+
+        <View style={styles.footer}>
+          <TouchableOpacity>
+            <Text style={styles.linkText}>Bạn quên mật khẩu?</Text>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Text style={styles.linkText}>Đặt lại mật khẩu</Text>
           </TouchableOpacity>
         </View>
+      </View>
+    </>
+  );
+
+  return (
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <StatusBar barStyle="light-content" />
+      <KeyboardAwareScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {step === 'options' && renderOptionsStep()}
+        {step === 'email' && renderEmailStep()}
+        {step === 'password' && renderPasswordStep()}
       </KeyboardAwareScrollView>
     </View>
   );

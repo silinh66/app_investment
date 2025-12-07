@@ -34,6 +34,7 @@ import { TopicItem } from "../components/TopicItem";
 import { topicsApi, Topic as TopicType } from "../api/topics";
 // ... existing imports ...
 import io from "socket.io-client"; // TODO: Add socket.io-client dependency
+import { LinearGradient } from "expo-linear-gradient";
 
 // API Host
 const API_HOST = "https://api.dautubenvung.vn"; // Replace with your actual API host
@@ -300,9 +301,8 @@ const StockInfoCard = ({ data }: { data: any }) => {
           >
             {changeValue == "" && changeValue !== 0
               ? ""
-              : `${changeValue >= 0 ? "+" : ""}${changeValue.toFixed(2)} /${
-                  changeValue >= 0 ? "+" : ""
-                }${(ratioChange * 1000).toFixed(2)}%`}
+              : `${changeValue >= 0 ? "+" : ""}${changeValue.toFixed(2)} /${changeValue >= 0 ? "+" : ""
+              }${(ratioChange * 1000).toFixed(2)}%`}
           </Text>
         </View>
 
@@ -562,12 +562,12 @@ const PostItem = ({
 
       {post.image && post.image?.length > 0
         ? post.image?.map((image: any) => (
-            <Image
-              key={image.url}
-              source={{ uri: image?.url }}
-              style={styles.postImage}
-            />
-          ))
+          <Image
+            key={image.url}
+            source={{ uri: image?.url }}
+            style={styles.postImage}
+          />
+        ))
         : null}
 
       {/* Stock mentions */}
@@ -2161,65 +2161,34 @@ export default function StockDetailScreen() {
         </View>
 
         {/* Settings Section */}
-        <View
-          style={[styles.section, { backgroundColor: colors.cardBackground }]}
+        <LinearGradient
+          colors={
+            theme?.mode === "dark"
+              ? ["#112C26", "#121317"]
+              : ["#F4F5F6", "#F4F5F6"]
+          }
+          style={[
+            styles.section,
+            {
+              borderColor: "#235a4e",
+              borderWidth: 1,
+              borderRadius: 12,
+            },
+          ]}
+          start={{ x: 0.089, y: 0 }}
+          end={{ x: 0.531, y: 1 }}
         >
+
+          {/* <View
+          style={[styles.section, { backgroundColor: colors.cardBackground }, {
+            borderColor: "#235a4e",
+            borderWidth: 1,
+            borderRadius: 12,
+          },]}
+        > */}
           <View
             style={styles.settingsHeader}
-            //         onPress={async () => {
-            //           try {
 
-            //   const res = await axiosClient.get(`/api/alerts/trendline/${symbol}`);
-            //   console.log(res);
-
-            //   router.push({
-            //           pathname: '/signal-settings',
-            //           params: {
-            //             symbol: symbol,
-            //             companyName: companyName,
-            //             exchange: exchange,
-            //             currentPrice: currentPrice,
-            //             changePercent: changePercent,
-            //             high: high,
-            //             average: average,
-            //             low: low,
-            //             ceiling: ceiling,
-            //             reference: reference,
-            //             floor: floor,
-            //           }
-            //         })
-            // } catch (err: any) {
-            //   console.log('Error:', err);
-            //   // Nếu lỗi 401 Unauthorized → chuyển về màn login
-            //   if (err.response?.status === 401) {
-            //     console.log('Unauthorized - redirecting to login');
-            //     // Store the current route before logout and redirecting to login
-            //     // Since we don't have access to the current route, we'll store a generic object
-            //     const currentRoute = { pathname: '/stock-detail', params: { symbol } };
-            //     await AsyncStorage.setItem('PREVIOUS_ROUTE', JSON.stringify(currentRoute));
-            //     await logout();
-            //     router.push('/auth/login');
-            //   } else {
-            //     router.push({
-            //           pathname: '/signal-settings',
-            //           params: {
-            //             symbol: symbol,
-            //             companyName: companyName,
-            //             exchange: exchange,
-            //             currentPrice: currentPrice,
-            //             changePercent: changePercent,
-            //             high: high,
-            //             average: average,
-            //             low: low,
-            //             ceiling: ceiling,
-            //             reference: reference,
-            //             floor: floor,
-            //           }
-            //         })
-            //   }
-            // }
-
-            //         }}
           >
             <View style={styles.settingsInfo}>
               <View style={styles.settingsRow}>
@@ -2292,7 +2261,9 @@ export default function StockDetailScreen() {
               <Text style={styles.unlockButtonText}>Cài đặt</Text>
             </TouchableOpacity>
           </View>
-        </View>
+          {/* </View> */}
+        </LinearGradient>
+
 
         {/* Tabs Navigation */}
         <View style={styles.tabsContainer}>
@@ -3263,12 +3234,12 @@ export default function StockDetailScreen() {
                             {
                               color: bidPrice
                                 ? getPriceColor(
-                                    +formatNumber(bidPrice),
-                                    parsedReference,
-                                    parsedCeiling,
-                                    parsedFloor,
-                                    theme
-                                  )
+                                  +formatNumber(bidPrice),
+                                  parsedReference,
+                                  parsedCeiling,
+                                  parsedFloor,
+                                  theme
+                                )
                                 : "#097f5",
                               backgroundColor: bgColors[bidPriceKey],
                             },
@@ -3286,12 +3257,12 @@ export default function StockDetailScreen() {
                             {
                               color: askPrice
                                 ? getPriceColor(
-                                    +formatNumber(askPrice),
-                                    parsedReference,
-                                    parsedCeiling,
-                                    parsedFloor,
-                                    theme
-                                  )
+                                  +formatNumber(askPrice),
+                                  parsedReference,
+                                  parsedCeiling,
+                                  parsedFloor,
+                                  theme
+                                )
                                 : "#C663E9",
                               backgroundColor: bgColors[askPriceKey],
                             },
@@ -3634,8 +3605,8 @@ export default function StockDetailScreen() {
                             {item.volume >= 1000000
                               ? `${(item.volume / 1000000).toFixed(2)} M`
                               : item.volume >= 1000
-                              ? `${(item.volume / 1000).toFixed(1)} K`
-                              : formatNumberComma(item.volume)}
+                                ? `${(item.volume / 1000).toFixed(1)} K`
+                                : formatNumberComma(item.volume)}
                           </Text>
                         </View>
                         <View
@@ -3829,10 +3800,10 @@ export default function StockDetailScreen() {
                         const lowestBar =
                           processColumnChartNuocNgoaiData.negBars.length > 0
                             ? processColumnChartNuocNgoaiData.negBars.reduce(
-                                (max, bar) =>
-                                  bar.height > max.height ? bar : max,
-                                processColumnChartNuocNgoaiData.negBars[0]
-                              )
+                              (max, bar) =>
+                                bar.height > max.height ? bar : max,
+                              processColumnChartNuocNgoaiData.negBars[0]
+                            )
                             : null;
 
                         const bottomLineY = lowestBar
@@ -3881,10 +3852,10 @@ export default function StockDetailScreen() {
                         const lowestBar =
                           processColumnChartNuocNgoaiData.negBars.length > 0
                             ? processColumnChartNuocNgoaiData.negBars.reduce(
-                                (max, bar) =>
-                                  bar.height > max.height ? bar : max,
-                                processColumnChartNuocNgoaiData.negBars[0]
-                              )
+                              (max, bar) =>
+                                bar.height > max.height ? bar : max,
+                              processColumnChartNuocNgoaiData.negBars[0]
+                            )
                             : null;
 
                         const bottomLineY = lowestBar
@@ -4058,10 +4029,10 @@ export default function StockDetailScreen() {
                         const lowestBar =
                           processColumnCharTuDoanhData.negBars.length > 0
                             ? processColumnCharTuDoanhData.negBars.reduce(
-                                (max, bar) =>
-                                  bar.height > max.height ? bar : max,
-                                processColumnCharTuDoanhData.negBars[0]
-                              )
+                              (max, bar) =>
+                                bar.height > max.height ? bar : max,
+                              processColumnCharTuDoanhData.negBars[0]
+                            )
                             : null;
 
                         const bottomLineY = lowestBar
@@ -4110,10 +4081,10 @@ export default function StockDetailScreen() {
                         const lowestBar =
                           processColumnCharTuDoanhData.negBars.length > 0
                             ? processColumnCharTuDoanhData.negBars.reduce(
-                                (max, bar) =>
-                                  bar.height > max.height ? bar : max,
-                                processColumnCharTuDoanhData.negBars[0]
-                              )
+                              (max, bar) =>
+                                bar.height > max.height ? bar : max,
+                              processColumnCharTuDoanhData.negBars[0]
+                            )
                             : null;
 
                         const bottomLineY = lowestBar
@@ -4183,62 +4154,62 @@ export default function StockDetailScreen() {
                   {/* Real Topics from new API */}
                   {realTopics.length > 0
                     ? realTopics.map((topic) => (
-                        <TopicItem
-                          key={topic.topic_id}
-                          topic={topic}
-                          onPress={(topicId) =>
-                            router.push(`/post-detail?postId=${topicId}`)
-                          }
-                          onCommentPress={(e, topicId) => {
-                            e.stopPropagation();
-                            router.push(
-                              `/post-detail?postId=${topicId}&scrollToComments=true`
-                            );
-                          }}
-                          onLikeUpdate={() => {
-                            // Refresh topics after like
-                            topicsApi
-                              .getTopicsBySymbol(symbol || "", 1, 20, "newest")
-                              .then((response) => {
-                                if (response.data && response.data.topics) {
-                                  setRealTopics(response.data.topics);
-                                }
-                              });
-                          }}
-                        />
-                      ))
+                      <TopicItem
+                        key={topic.topic_id}
+                        topic={topic}
+                        onPress={(topicId) =>
+                          router.push(`/post-detail?postId=${topicId}`)
+                        }
+                        onCommentPress={(e, topicId) => {
+                          e.stopPropagation();
+                          router.push(
+                            `/post-detail?postId=${topicId}&scrollToComments=true`
+                          );
+                        }}
+                        onLikeUpdate={() => {
+                          // Refresh topics after like
+                          topicsApi
+                            .getTopicsBySymbol(symbol || "", 1, 20, "newest")
+                            .then((response) => {
+                              if (response.data && response.data.topics) {
+                                setRealTopics(response.data.topics);
+                              }
+                            });
+                        }}
+                      />
+                    ))
                     : /* Fallback to old topics if no real topics */
-                      topics.map((topic) => (
-                        <TopicItem
-                          key={topic.topic_id}
-                          topic={topic}
-                          onPress={(topicId) =>
-                            router.push(`/post-detail?postId=${topicId}`)
-                          }
-                          onCommentPress={(e, topicId) => {
-                            e.stopPropagation();
-                            router.push(
-                              `/post-detail?postId=${topicId}&scrollToComments=true`
-                            );
-                          }}
-                          onLikeUpdate={() => {
-                            // Refresh topics after like
-                            topicsApi
-                              .getTopicsBySymbol(symbol || "", 1, 20, "newest")
-                              .then((response) => {
-                                if (response.data && response.data.topics) {
-                                  setRealTopics(response.data.topics);
-                                }
-                              });
-                          }}
-                        />
-                        // <PostItem
-                        //   key={topic.topic_id}
-                        //   post={topic}
-                        //   stockData={stockData}
-                        //   onStockPress={handleStockPress}
-                        // />
-                      ))}
+                    topics.map((topic) => (
+                      <TopicItem
+                        key={topic.topic_id}
+                        topic={topic}
+                        onPress={(topicId) =>
+                          router.push(`/post-detail?postId=${topicId}`)
+                        }
+                        onCommentPress={(e, topicId) => {
+                          e.stopPropagation();
+                          router.push(
+                            `/post-detail?postId=${topicId}&scrollToComments=true`
+                          );
+                        }}
+                        onLikeUpdate={() => {
+                          // Refresh topics after like
+                          topicsApi
+                            .getTopicsBySymbol(symbol || "", 1, 20, "newest")
+                            .then((response) => {
+                              if (response.data && response.data.topics) {
+                                setRealTopics(response.data.topics);
+                              }
+                            });
+                        }}
+                      />
+                      // <PostItem
+                      //   key={topic.topic_id}
+                      //   post={topic}
+                      //   stockData={stockData}
+                      //   onStockPress={handleStockPress}
+                      // />
+                    ))}
                 </View>
               )}
             </View>
@@ -4255,7 +4226,7 @@ export default function StockDetailScreen() {
                 uri: `https://app.dautubenvung.vn/bieu-do-tai-chinh/${symbol}`,
               }}
               style={{ flex: 1 }}
-              // onMessage={ListenMessageWebview}
+            // onMessage={ListenMessageWebview}
             />
           </View>
         )}
@@ -4680,6 +4651,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 12,
     padding: 16,
+    paddingVertical: 8
   },
   sectionHeader: {
     flexDirection: "row",

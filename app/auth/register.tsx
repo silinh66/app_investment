@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
@@ -7,318 +7,408 @@ import {
   View,
   TextInput,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { styles } from './styles';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'react-native';
 
 interface RegisterForm {
-  name: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  firstName: string;
+  lastName: string;
+  otp: string;
 }
+
+type RegisterStep = 'options' | 'email' | 'password' | 'name' | 'otp';
 
 const RegisterScreen: React.FC = () => {
   const { theme } = useTheme();
-  const { register, loading } = useAuth();
+  const { register, loading, isAuthenticated } = useAuth();
+  const [step, setStep] = useState<RegisterStep>('options');
   const [showPass, setShowPass] = useState<boolean>(false);
-  const [showConfirmPass, setShowConfirmPass] = useState<boolean>(false);
 
   const {
     control,
     handleSubmit,
-    watch,
+    trigger,
+    getValues,
     formState: { errors, isValid },
   } = useForm<RegisterForm>({
     mode: "onChange",
     defaultValues: {
-      name: "",
       email: "",
       password: "",
-      confirmPassword: "",
+      firstName: "",
+      lastName: "",
+      otp: "",
     },
   });
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/(tabs)');
+    }
+  }, [isAuthenticated]);
 
   const onShowPass = () => {
     setShowPass(!showPass);
   };
 
-  const onShowConfirmPass = () => {
-    setShowConfirmPass(!showConfirmPass);
-  };
-
   const onSubmitRegister = async (data: RegisterForm) => {
     try {
-      await register(data.name, data.email, data.password, '');
-      // Navigate to main app
-      router.replace('/(tabs)');
+      const fullName = `${data.firstName} ${data.lastName}`.trim();
+      // Mock OTP verification success, proceed to register
+      await register(fullName, data.email, data.password, ""); // Phone is optional/empty for now
+      // AuthContext handles setting user and isAuthenticated, which triggers the useEffect redirect
     } catch (error: any) {
+      console.log('Register error:', error);
       let errorMessage = 'Registration failed. Please try again.';
-      
       if (error.response) {
-        // Server responded with error status
         errorMessage = error.response.data?.message || error.response.statusText || errorMessage;
       } else if (error.request) {
-        // Request was made but no response received
         errorMessage = 'Network error. Please check your connection.';
       } else {
-        // Something else happened
         errorMessage = error.message || errorMessage;
       }
-      
       Alert.alert('Error', errorMessage);
     }
   };
 
-  const onNavigateToLogin = () => {
-    router.push('/auth/login');
+  const handleEmailContinue = async () => {
+    const isEmailValid = await trigger('email');
+    if (isEmailValid) {
+      setStep('password');
+    }
   };
+
+  const handlePasswordContinue = async () => {
+    const isPasswordValid = await trigger('password');
+    if (isPasswordValid) {
+      setStep('name');
+    }
+  };
+
+  const handleNameContinue = async () => {
+    const isFirstNameValid = await trigger('firstName');
+    const isLastNameValid = await trigger('lastName');
+    if (isFirstNameValid && isLastNameValid) {
+      setStep('otp');
+    }
+  };
+
+  const goBack = () => {
+    if (step === 'otp') {
+      setStep('name');
+    } else if (step === 'name') {
+      setStep('password');
+    } else if (step === 'password') {
+      setStep('email');
+    } else if (step === 'email') {
+      setStep('options');
+    } else {
+      router.back();
+    }
+  };
+
+  const renderOptionsStep = () => (
+    <>
+      <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
+        <Ionicons name="close" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
+
+      <View style={styles.header}>
+        {/* <Text style={styles.logoText}>dautubenvung.vn</Text> */}
+        {/* logo logo_white_blue.png */}
+        <Image
+          source={require('../../assets/images/logo_white_blue.png')}
+          style={styles.logo}
+        />
+        <Text style={styles.title}>Đăng ký miễn phí</Text>
+        <Text style={styles.description}>Các tín hiệu đầu tư tuyệt vời đang chờ đón bạn.</Text>
+      </View>
+
+      <View style={styles.content}>
+        <TouchableOpacity style={[styles.socialButton, styles.appleButton,]}>
+          <Ionicons name="logo-apple" size={24} color="#000000" />
+          <Text style={[styles.socialButtonText, styles.appleButtonText]}>Đăng ký với Apple</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.socialButton, { backgroundColor: theme.colors.card }]}>
+          <Ionicons name="logo-google" size={24} color="#FFFFFF" />
+          <Text style={styles.socialButtonText}>Đăng ký với Google</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.socialButton, { backgroundColor: theme.colors.card }]} onPress={() => setStep('email')}>
+          <Ionicons name="mail-outline" size={24} color="#FFFFFF" />
+          <Text style={styles.socialButtonText}>Đăng ký với Email hoặc SĐT</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.socialButton, { backgroundColor: theme.colors.card }]}>
+          <Ionicons name="logo-facebook" size={24} color="#fff" />
+          <Text style={styles.socialButtonText}>Đăng ký với Facebook</Text>
+        </TouchableOpacity>
+
+        <View style={{ marginTop: 40, alignItems: 'center' }}>
+          <Text style={{ color: '#8E8E93' }}>
+            Bạn đã có tài khoản? <Text style={{ color: '#3B82F6' }} onPress={() => router.push('/auth/login')}>Đăng Nhập</Text>
+
+          </Text>
+        </View>
+      </View>
+    </>
+  );
+
+  const renderEmailStep = () => (
+    <>
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
+
+      <View style={styles.header}>
+        <Text style={styles.title}>Đăng ký</Text>
+        <Text style={styles.description}>
+          Vui lòng điền email hoặc số điện thoại của bạn để kiểm tra.
+        </Text>
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.inputLabel}>Emai/Số điện thoại</Text>
+        <Controller
+          control={control}
+          name="email"
+          rules={{
+            required: 'Vui lòng nhập email.',
+            pattern: {
+              value: /^([^\s@]+@[^\s@]+\.[^\s@]+|[0-9]{10,11})$/,
+              message: 'Vui lòng nhập email hợp lệ.'
+            }
+          }}
+          render={({ field: { value, onChange, onBlur } }) => (
+            <View style={styles.inputContainer}>
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                style={styles.input}
+                keyboardType="email-address"
+                placeholder="Điền email hoặc số điện thoại của bạn"
+                placeholderTextColor="#666666"
+                autoCapitalize="none"
+              />
+              {errors.email?.message && (
+                <Text style={styles.errorText}>{errors.email?.message}</Text>
+              )}
+            </View>
+          )}
+        />
+
+        <TouchableOpacity
+          style={[styles.primaryButton, { backgroundColor: theme.colors.blue }]}
+          onPress={handleEmailContinue}
+        >
+          <Text style={styles.primaryButtonText}>Tiếp tục</Text>
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
+  const renderPasswordStep = () => (
+    <>
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
+
+      <View style={styles.header}>
+        <Text style={styles.title}>Đăng ký tài khoản</Text>
+        <Text style={styles.description}>Tạo tài khoản để được truy cập thêm nhiều tính năng khác.</Text>
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.inputLabel}>Mật khẩu</Text>
+        <Controller
+          control={control}
+          name="password"
+          rules={{
+            required: 'Vui lòng nhập mật khẩu.',
+            minLength: {
+              value: 6,
+              message: 'Mật khẩu tối thiểu 6 ký tự.'
+            }
+          }}
+          render={({ field: { value, onChange, onBlur } }) => (
+            <View style={styles.inputContainer}>
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                style={styles.input}
+                placeholder="Vui lòng nhập mật khẩu của bạn."
+                placeholderTextColor="#666666"
+                secureTextEntry={!showPass}
+              />
+              <TouchableOpacity style={styles.inputIcon} onPress={onShowPass}>
+                <Ionicons name={showPass ? "eye-off" : "eye"} size={20} color="#8E8E93" />
+              </TouchableOpacity>
+              {errors.password?.message && (
+                <Text style={styles.errorText}>{errors.password?.message}</Text>
+              )}
+            </View>
+          )}
+        />
+
+        <TouchableOpacity
+          style={[styles.primaryButton, { backgroundColor: theme.colors.blue }]}
+          onPress={handlePasswordContinue}
+        >
+          <Text style={styles.primaryButtonText}>Tiếp tục</Text>
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
+  const renderNameStep = () => (
+    <>
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
+
+      <View style={styles.header}>
+        <Text style={styles.title}>Đăng ký tài khoản</Text>
+        <Text style={styles.description}>Tạo tài khoản để được truy cập thêm nhiều tính năng khác.</Text>
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.inputLabel}>Điền tên</Text>
+        <Controller
+          control={control}
+          name="firstName"
+          rules={{ required: 'Vui lòng nhập tên.' }}
+          render={({ field: { value, onChange, onBlur } }) => (
+            <View style={styles.inputContainer}>
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                style={styles.input}
+                placeholder="Vui lòng nhập tên của bạn"
+                placeholderTextColor="#666666"
+              />
+              {errors.firstName?.message && (
+                <Text style={styles.errorText}>{errors.firstName?.message}</Text>
+              )}
+            </View>
+          )}
+        />
+
+        <Text style={styles.inputLabel}>Điền username</Text>
+        <Controller
+          control={control}
+          name="lastName"
+          rules={{ required: 'Vui lòng nhập username.' }}
+          render={({ field: { value, onChange, onBlur } }) => (
+            <View style={styles.inputContainer}>
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                style={styles.input}
+                placeholder="Vui lòng nhập username của bạn"
+                placeholderTextColor="#666666"
+              />
+              {errors.lastName?.message && (
+                <Text style={styles.errorText}>{errors.lastName?.message}</Text>
+              )}
+            </View>
+          )}
+        />
+
+        <TouchableOpacity
+          style={[styles.primaryButton, { backgroundColor: theme.colors.blue }]}
+          onPress={handleNameContinue}
+        >
+          <Text style={styles.primaryButtonText}>Tiếp tục</Text>
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
+  const renderOtpStep = () => (
+    <>
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
+
+      <View style={styles.header}>
+        <Text style={styles.title}>Xác Minh Email hoặc Số điện thoại</Text>
+        <Text style={styles.description}>
+          Vui lòng nhập mã xác minh 6 chữ số đã được gửi đến {getValues('email')}.
+        </Text>
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.inputLabel}>Nhập mã</Text>
+        <Controller
+          control={control}
+          name="otp"
+          rules={{
+            required: 'Vui lòng nhập mã xác thực.',
+            minLength: { value: 6, message: 'Mã xác minh gồm 6 chữ số.' }
+          }}
+          render={({ field: { value, onChange, onBlur } }) => (
+            <View style={styles.inputContainer}>
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                style={[styles.input, { letterSpacing: 8, textAlign: 'center' }]}
+                placeholder="------"
+                placeholderTextColor="#666666"
+                keyboardType="number-pad"
+                maxLength={6}
+              />
+              {errors.otp?.message && (
+                <Text style={styles.errorText}>{errors.otp?.message}</Text>
+              )}
+            </View>
+          )}
+        />
+
+        <TouchableOpacity
+          style={[styles.primaryButton, { backgroundColor: theme.colors.blue }]}
+          onPress={handleSubmit(onSubmitRegister)}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.primaryButtonText}>Xác minh mã</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity style={{ marginTop: 20, alignItems: 'center' }}>
+          <Text style={{ color: '#3B82F6' }}>Tôi không nhận được mã xác minh</Text>
+        </TouchableOpacity>
+      </View>
+    </>
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <StatusBar barStyle="light-content" />
       <KeyboardAwareScrollView
-        contentContainerStyle={{ flex: 1, justifyContent: "center" }}
+        contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.logo}>
-          {/* Replace with your actual logo */}
-          <Text style={[styles.logoText, { color: theme.colors.text }]}>LOGO</Text>
-        </View>
-        
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>
-            Đăng ký
-          </Text>
-          <Text style={[styles.description, { color: theme.colors.secondaryText }]}>
-            Tạo tài khoản mới
-          </Text>
-        </View>
-        
-        <View style={styles.content}>
-          <Controller
-            control={control}
-            name="name"
-            rules={{
-              required: 'Vui lòng nhập họ tên.',
-              minLength: {
-                value: 2,
-                message: 'Họ tên phải có ít nhất 2 ký tự.'
-              }
-            }}
-            render={({
-              field: { value, onChange, onBlur, ref },
-            }) => {
-              return (
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    ref={ref}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: theme.colors.card,
-                        color: theme.colors.text,
-                        borderColor: theme.colors.border,
-                      },
-                    ]}
-                    placeholder={"Họ và tên"}
-                    placeholderTextColor={theme.colors.secondaryText}
-                  />
-                  <Text style={[styles.inputIcon, { color: theme.colors.iconColor }]}>
-                    👤
-                  </Text>
-                  {errors.name?.message ? (
-                    <Text style={styles.errorText}>{errors.name?.message}</Text>
-                  ) : null}
-                </View>
-              );
-            }}
-          />
-
-          <Controller
-            control={control}
-            name="email"
-            rules={{
-              required: 'Vui lòng nhập email.',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Vui lòng nhập email hợp lệ.'
-              }
-            }}
-            render={({
-              field: { value, onChange, onBlur, ref },
-            }) => {
-              return (
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    ref={ref}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: theme.colors.card,
-                        color: theme.colors.text,
-                        borderColor: theme.colors.border,
-                      },
-                    ]}
-                    keyboardType={"email-address"}
-                    placeholder={"Email"}
-                    placeholderTextColor={theme.colors.secondaryText}
-                  />
-                  <Text style={[styles.inputIcon, { color: theme.colors.iconColor }]}>
-                    @
-                  </Text>
-                  {errors.email?.message ? (
-                    <Text style={styles.errorText}>{errors.email?.message}</Text>
-                  ) : null}
-                </View>
-              );
-            }}
-          />
-
-          <Controller
-            control={control}
-            name="password"
-            rules={{
-              required: 'Vui lòng nhập mật khẩu.',
-              minLength: {
-                value: 6,
-                message: 'Mật khẩu tối thiểu 6 ký tự.'
-              }
-            }}
-            render={({
-              field: { value, onChange, onBlur, ref },
-            }) => (
-              <View style={styles.inputContainer}>
-                <TextInput
-                  ref={ref}
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: theme.colors.card,
-                      color: theme.colors.text,
-                      borderColor: theme.colors.border,
-                    },
-                  ]}
-                  maxLength={20}
-                  placeholder={"Mật khẩu"}
-                  secureTextEntry={!showPass}
-                  placeholderTextColor={theme.colors.secondaryText}
-                />
-                <TouchableOpacity style={styles.eyeIcon} onPress={onShowPass}>
-                  <Text style={[styles.inputIcon, { color: theme.colors.iconColor }]}>
-                    {showPass ? '👁️' : '👁️‍🗨️'}
-                  </Text>
-                </TouchableOpacity>
-                <Text style={[styles.passwordIcon, { color: theme.colors.iconColor }]}>
-                  *
-                </Text>
-                {errors.password?.message ? (
-                  <Text style={styles.errorText}>{errors.password?.message}</Text>
-                ) : null}
-              </View>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="confirmPassword"
-            rules={{
-              required: 'Vui lòng xác nhận mật khẩu.',
-              validate: (value) => {
-                if (watch('password') != value) {
-                  return "Mật khẩu xác nhận không khớp";
-                }
-              },
-            }}
-            render={({
-              field: { value, onChange, onBlur, ref },
-            }) => (
-              <View style={styles.inputContainer}>
-                <TextInput
-                  ref={ref}
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: theme.colors.card,
-                      color: theme.colors.text,
-                      borderColor: theme.colors.border,
-                    },
-                  ]}
-                  maxLength={20}
-                  placeholder={"Xác nhận mật khẩu"}
-                  secureTextEntry={!showConfirmPass}
-                  placeholderTextColor={theme.colors.secondaryText}
-                />
-                <TouchableOpacity style={styles.eyeIcon} onPress={onShowConfirmPass}>
-                  <Text style={[styles.inputIcon, { color: theme.colors.iconColor }]}>
-                    {showConfirmPass ? '👁️' : '👁️‍🗨️'}
-                  </Text>
-                </TouchableOpacity>
-                <Text style={[styles.passwordIcon, { color: theme.colors.iconColor }]}>
-                  *
-                </Text>
-                {errors.confirmPassword?.message ? (
-                  <Text style={styles.errorText}>{errors.confirmPassword?.message}</Text>
-                ) : null}
-              </View>
-            )}
-          />
-
-          <View style={styles.actionContainer}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={[
-                styles.loginButton,
-                {
-                  backgroundColor: isValid
-                    ? theme.colors.primary
-                    : theme.colors.border,
-                },
-              ]}
-              onPress={handleSubmit(onSubmitRegister)}
-              disabled={!isValid || loading}
-            >
-              {loading ? (
-                <ActivityIndicator
-                  color="#fff"
-                  style={{ marginRight: 5 }}
-                />
-              ) : null}
-              <Text style={styles.loginButtonText}>
-                Đăng ký
-              </Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.registerContainer}>
-            <Text style={[styles.accountText, { color: theme.colors.text }]}>
-              Đã có tài khoản?
-            </Text>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.registerButton}
-              onPress={onNavigateToLogin}
-            >
-              <Text style={[styles.registerText, { color: theme.colors.primary }]}>
-                Đăng nhập
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        {step === 'options' && renderOptionsStep()}
+        {step === 'email' && renderEmailStep()}
+        {step === 'password' && renderPasswordStep()}
+        {step === 'name' && renderNameStep()}
+        {step === 'otp' && renderOtpStep()}
       </KeyboardAwareScrollView>
     </View>
   );
