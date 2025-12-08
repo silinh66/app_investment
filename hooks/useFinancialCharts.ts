@@ -198,6 +198,49 @@ export const useFinancialCharts = (symbol: string) => {
 
     // 4. Cash Flow Chart (BVH - Lưu chuyển tiền tệ)
     const cashFlowChartData = useMemo(() => {
+        if (symbol === 'SSI') {
+            // "Lưu chuyển tiền tệ" for SSI (Image 4)
+            // Categories: Q1'21 to Q4'24 (16 quarters)
+            const categoriesSSI_CashFlow = [
+                'Q1\'21', 'Q2\'21', 'Q3\'21', 'Q4\'21',
+                'Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22',
+                'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23',
+                'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24'
+            ];
+
+            return {
+                categories: categoriesSSI_CashFlow,
+                title: 'Lưu chuyển tiền tệ',
+                type: 'mixed' as const,
+                series: [
+                    {
+                        name: 'Hoạt động đầu tư', // Cyan
+                        data: [0.5, 4.0, 5.5, 2.5, 4.0, 6.5, 2.2, 6.5, -1.0, 4.0, 12.0, -3.0, -3.0, 4.8, 4.8, 6.8],
+                        color: '#00E5FF',
+                        type: 'column'
+                    },
+                    {
+                        name: 'Hoạt động kinh doanh', // Purple (Deep Blue/Purple)
+                        data: [-1.0, -4.5, -6.0, -2.0, -4.5, -7.5, -2.0, -6.0, 3.0, -4.0, -12.5, 2.2, 2.2, -3.0, -3.0, -7.0],
+                        color: '#651FFF',
+                        type: 'column'
+                    },
+                    {
+                        name: 'Hoạt động tài chính', // Green
+                        data: [0.2, 0.2, -0.5, -2.0, 0.5, -1.0, 0.5, 0.5, -3.5, 0.5, -0.5, -3.5, -3.5, -5.5, -5.5, -0.5],
+                        color: '#00E676',
+                        type: 'column'
+                    },
+                    {
+                        name: 'Tiền và tương đương cuối kì', // Orange Line
+                        data: [0.5, 0.4, 0.3, 0.8, 0.6, 0.5, 0.8, 1.2, 0.5, 0.6, 0.8, 0.5, 0.6, 2.0, 2.0, 0.8],
+                        color: '#FF6D00',
+                        type: 'line'
+                    }
+                ]
+            };
+        }
+
         return {
             categories: categoriesBVH,
             title: 'Lưu chuyển tiền tệ',
@@ -232,7 +275,7 @@ export const useFinancialCharts = (symbol: string) => {
                 }
             ]
         };
-    }, [cashFlowChange]);
+    }, [cashFlowChange, symbol]);
 
     // 5. Asset Chart (BVH - Cơ cấu tài sản)
     const assetChartData = useMemo(() => {

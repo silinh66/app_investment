@@ -179,8 +179,163 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
 
             const chartWidth = Math.max(screenWidth - 48, data.categories.length * 50);
 
-            // Check if we need Stacked Bar base (multiple column series) or Simple Bar base
+            // Check if we need complex "Split Stack" (Positive + Negative Stacks)
+            // This is needed for SSI Cash Flow which has mixed pos/neg values in columns
+            const hasNegative = columnSeries.some((s: any) => s.data.some((v: number) => v < 0));
             const isStackedBase = columnSeries.length > 1;
+
+            if (hasNegative && isStackedBase) {
+                // 1. Prepare Data
+                const posSeries = columnSeries.map((s: any) => ({
+                    ...s,
+                    data: s.data.map((v: number) => Math.max(0, v))
+                }));
+                const negSeries = columnSeries.map((s: any) => ({
+                    ...s,
+                    data: s.data.map((v: number) => Math.abs(Math.min(0, v)))
+                }));
+
+                // 2. Calculate Global Max for Scaling
+                // We need both charts (Pos & Neg) to have the SAME scale so they align
+                // And the Line Chart needs to cover -Max to +Max
+                let maxStackVal = 0;
+                data.categories.forEach((_: any, i: number) => {
+                    const posSum = posSeries.reduce((acc: number, s: any) => acc + s.data[i], 0);
+                    const negSum = negSeries.reduce((acc: number, s: any) => acc + s.data[i], 0);
+                    maxStackVal = Math.max(maxStackVal, posSum, negSum);
+                });
+
+                // Add buffer and round up
+                const limit = Math.ceil(maxStackVal * 1.1);
+
+                // 3. Add Spacers to force scale
+                const posDataWithSpacer = data.categories.map((_: any, i: number) => {
+                    const stackSum = posSeries.reduce((acc: number, s: any) => acc + s.data[i], 0);
+                    return [...posSeries.map((s: any) => s.data[i]), limit - stackSum];
+                });
+                const negDataWithSpacer = data.categories.map((_: any, i: number) => {
+                    const stackSum = negSeries.reduce((acc: number, s: any) => acc + s.data[i], 0);
+                    return [...negSeries.map((s: any) => s.data[i]), limit - stackSum];
+                });
+
+                const barColors = [...columnSeries.map((s: any) => s.color), 'transparent'];
+
+                // 4. Line Chart Data (Force scale -Limit to +Limit)
+                // We add hidden datasets with [limit] and [-limit] to force the scale
+                const lineDatasets = lineSeries.map((s: any) => ({
+                    data: s.data,
+                    color: (opacity = 1) => s.color || `rgba(255, 255, 255, ${opacity})`,
+                    strokeWidth: 2,
+                    withDots: false
+                }));
+                // Add invisible bounds
+                lineDatasets.push({
+                    data: new Array(data.categories.length).fill(limit),
+                    color: () => 'transparent',
+                    strokeWidth: 0,
+                    withDots: false
+                });
+                lineDatasets.push({
+                    data: new Array(data.categories.length).fill(-limit),
+                    color: () => 'transparent',
+                    strokeWidth: 0,
+                    withDots: false
+                });
+
+                const halfHeight = height / 2;
+                const fixPadding = 30; // Increase height to push X-axis labels/padding out of view
+
+                return (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={{ height: height, width: chartWidth }}>
+                            {/* Top Half: Positive Stack */}
+                            <View style={{ height: halfHeight, width: chartWidth, overflow: 'hidden' }}>
+                                <StackedBarChart
+                                    data={{
+                                        labels: data.categories,
+                                        legend: [],
+                                        data: posDataWithSpacer,
+                                        barColors
+                                    }}
+                                    width={chartWidth}
+                                    height={halfHeight + fixPadding}
+                                    chartConfig={{
+                                        ...chartConfig,
+                                        barPercentage: 0.6,
+                                        propsForBackgroundLines: { strokeWidth: 0 }, // Hide grid lines in sub-charts
+                                        color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                                        labelColor: () => 'transparent', // Hide labels
+                                    }}
+                                    hideLegend={true}
+                                    withHorizontalLabels={false}
+                                    withVerticalLabels={false}
+                                />
+                            </View>
+
+                            {/* Bottom Half: Negative Stack (Flipped) */}
+                            <View style={{ height: halfHeight, width: chartWidth, transform: [{ scaleY: -1 }], overflow: 'hidden' }}>
+                                <StackedBarChart
+                                    data={{
+                                        labels: data.categories,
+                                        legend: [],
+                                        data: negDataWithSpacer,
+                                        barColors
+                                    }}
+                                    width={chartWidth}
+                                    height={halfHeight + fixPadding}
+                                    chartConfig={{
+                                        ...chartConfig,
+                                        barPercentage: 0.6,
+                                        propsForBackgroundLines: { strokeWidth: 0 },
+                                        color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                                        labelColor: () => 'transparent',
+                                    }}
+                                    hideLegend={true}
+                                    withHorizontalLabels={false}
+                                    withVerticalLabels={false}
+                                />
+                            </View>
+
+                            {/* Overlay: Line Chart (Full Height) */}
+                            <View style={{ position: 'absolute', top: 0, left: 0, height: height, width: chartWidth }} pointerEvents="none">
+                                <LineChart
+                                    data={{
+                                        labels: data.categories,
+                                        datasets: lineDatasets
+                                    }}
+                                    width={chartWidth}
+                                    height={height}
+                                    chartConfig={{
+                                        ...chartConfig,
+                                        backgroundGradientFromOpacity: 0,
+                                        backgroundGradientToOpacity: 0,
+                                        fillShadowGradientFromOpacity: 0,
+                                        fillShadowGradientToOpacity: 0,
+                                        propsForBackgroundLines: {
+                                            strokeDasharray: "4",
+                                            stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
+                                            strokeWidth: 1
+                                        },
+                                        color: (opacity = 1) => lineSeries[0]?.color || `rgba(255, 255, 255, ${opacity})`,
+                                        labelColor: (opacity = 1) => isDark ? `rgba(156, 163, 175, ${opacity})` : `rgba(107, 114, 128, ${opacity})`,
+                                    }}
+                                    withInnerLines={true}
+                                    withOuterLines={false}
+                                    withVerticalLines={false}
+                                    withHorizontalLines={true}
+                                    fromZero={false} // We handle scale manually
+                                    bezier
+                                    withDots={false}
+                                    withShadow={false}
+                                    yAxisLabel=""
+                                    yAxisSuffix="T"
+                                    segments={4} // Ensure 0 is in middle? No, 4 segments means 5 lines. -L, -L/2, 0, L/2, L
+                                />
+                            </View>
+                        </View>
+                    </ScrollView>
+                );
+            }
 
             return (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
