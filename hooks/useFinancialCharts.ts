@@ -475,6 +475,39 @@ export const useFinancialCharts = (symbol: string) => {
         return null;
     }, [symbol]);
 
+    // 9. P/B Valuation Chart (Định giá P/B)
+    const pbValuationChartData = useMemo(() => {
+        if (symbol === 'SSI') {
+            // "Định giá P/B" for SSI (Image 9)
+            // Pattern: Start ~1.5 -> Drop ~0.6 -> Flat -> Rise -> Spike ~3.5 -> Drop
+            const pbData = [
+                1.5, 0.6, 0.6, 0.6, 1.2, 1.2, 1.3, 1.5, 1.4, 1.5,
+                0.6, 0.6, 0.6, 1.2, 1.2, 1.3, 1.3, 1.2, 1.9, 1.0,
+                0.9, 1.0, 1.5, 3.4, 1.9
+            ];
+
+            // Match categories length
+            const categoriesPB = new Array(pbData.length).fill('');
+            const quarters = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24'];
+            quarters.forEach((q, index) => {
+                const dataIndex = index * 3;
+                if (dataIndex < pbData.length) {
+                    categoriesPB[dataIndex] = q;
+                }
+            });
+
+            return {
+                categories: categoriesPB,
+                title: 'Định giá P/B',
+                type: 'line' as const,
+                series: [{ name: 'P/B', data: pbData, color: '#FFA000' }]
+            };
+        }
+        return null;
+    }, [symbol]);
+
+
+
     return {
         loading,
         superSector: 'Mock',
@@ -486,6 +519,7 @@ export const useFinancialCharts = (symbol: string) => {
         capitalChartData,
         debtRatioChartData,
         peValuationChartData,
+        pbValuationChartData,
         setAssetChange,
         assetChange,
         setCapitalChange,

@@ -46,7 +46,8 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
         setCapitalChange,
         capitalChange,
         debtRatioChartData,
-        peValuationChartData
+        peValuationChartData,
+        pbValuationChartData
     } = useFinancialCharts(symbol);
 
     const { theme } = useTheme();
@@ -185,6 +186,25 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                     />
                 </View>
             )}
+
+            {/* P/B Valuation Chart */}
+            {pbValuationChartData && (
+                <View style={styles.chartContainer}>
+                    <View style={styles.header}>
+                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{pbValuationChartData.title}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#2C2D33' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}>
+                            <Text style={{ color: isDark ? '#fff' : '#000', fontSize: 12, marginRight: 4 }}>Quý</Text>
+                        </View>
+                    </View>
+                    <NativeFinancialChart
+                        data={pbValuationChartData}
+                        title=""
+                        type={pbValuationChartData.type}
+                    />
+                </View>
+            )}
+
+
         </View>
     );
 };
