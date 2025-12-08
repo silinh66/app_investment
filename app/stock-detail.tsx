@@ -32,6 +32,7 @@ import { formatThousands } from "@/utils/formatNumber";
 import ChartWebViews from "./ChartWebView";
 import { TopicItem } from "../components/TopicItem";
 import { topicsApi, Topic as TopicType } from "../api/topics";
+import FinancialChartsContainer from "@/components/FinancialChartsContainer";
 // ... existing imports ...
 import io from "socket.io-client"; // TODO: Add socket.io-client dependency
 import { LinearGradient } from "expo-linear-gradient";
@@ -4216,19 +4217,7 @@ export default function StockDetailScreen() {
           </>
         )}
         {activeTab === "Biểu đồ tài chính" && (
-          <View style={{ height: 1700 }}>
-            <WebView
-              showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-              // ref={webviewRef}
-              originWhitelist={["*"]}
-              source={{
-                uri: `https://app.dautubenvung.vn/bieu-do-tai-chinh/${symbol}`,
-              }}
-              style={{ flex: 1 }}
-            // onMessage={ListenMessageWebview}
-            />
-          </View>
+          <FinancialChartsContainer symbol={symbol} />
         )}
       </ScrollView>
       {/* Trading Detail Modal */}
