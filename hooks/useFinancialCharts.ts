@@ -279,6 +279,41 @@ export const useFinancialCharts = (symbol: string) => {
 
     // 5. Asset Chart (BVH - Cơ cấu tài sản)
     const assetChartData = useMemo(() => {
+        if (symbol === 'SSI') {
+            // "Tài sản" for SSI (Image 5)
+            return {
+                categories: categoriesSSI,
+                title: 'Tài sản',
+                type: 'stacked' as const,
+                series: [
+                    {
+                        name: 'Tiền và tương đương...', // Beige (Bottom)
+                        data: [2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3],
+                        color: '#FFCC80',
+                        stack: 'total'
+                    },
+                    {
+                        name: 'Các khoản cho vay...', // Pink (Lower Middle)
+                        data: [4, 4, 3, 3, 3, 3, 3, 4, 5, 4, 3, 3, 2],
+                        color: '#FF4081',
+                        stack: 'total'
+                    },
+                    {
+                        name: 'Tài sản tài chính...', // Blue (Dominant Middle)
+                        data: [45, 40, 42, 46, 48, 45, 50, 65, 62, 66, 60, 78, 94],
+                        color: '#448AFF',
+                        stack: 'total'
+                    },
+                    {
+                        name: 'Tài sản khác', // Green (Top)
+                        data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                        color: '#00E676',
+                        stack: 'total'
+                    },
+                ]
+            };
+        }
+
         return {
             categories: categoriesAssets,
             title: 'Cơ cấu tài sản',
@@ -290,7 +325,7 @@ export const useFinancialCharts = (symbol: string) => {
                 { name: "Hàng tồn kho", data: [10, 15, 10, 15, 20, 15, 20, 15, 20, 15, 20, 15, 20, 15], color: "#00B0FF", stack: 'total' },
             ]
         };
-    }, [assetChange]);
+    }, [assetChange, symbol]);
 
     return {
         loading,
