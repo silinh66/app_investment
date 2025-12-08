@@ -402,6 +402,79 @@ export const useFinancialCharts = (symbol: string) => {
         return null;
     }, [symbol]);
 
+    // 8. P/E Valuation Chart (Định giá P/E)
+    const peValuationChartData = useMemo(() => {
+        if (symbol === 'SSI') {
+            // "Định giá P/E" for SSI (Image 8)
+            // Wave pattern: 4 Peaks. Range ~7 to ~29.
+            // Low -> High -> Low -> High -> Low -> High -> Low -> High -> Mid
+            const peData = [
+                7, 6.5, 12, 28, 28, 25, 24, 15, 7, 6.5, // Peak 1 & Low
+                12, 28, 28, 25, 24, 18, 16, 7, 6.5, // Peak 2 & Low
+                12, 28, 28, 25, 22, 18, 16, 22, 21, 23, 17 // Peak 3 & End
+            ];
+            // Adjust length to match 26 points roughly or just use the data points we have.
+            // The previous chart had 26 points. Let's try to fit this pattern into ~26-30 points.
+            // Image shows ~4 peaks.
+            // Let's construct a 26-point array to match the categories we already have.
+            const peData26 = [
+                7, 6.8, 14, 29, 28, 25, 20, 8, 7, // Low -> Peak -> Low
+                10, 29, 28, 24, 19, 8, 7, // Low -> Peak -> Low
+                11, 29, 28, 23, 18, 7, // Low -> Peak -> Low
+                12, 29, 28, 22, 21, 23, 18 // Peak -> End
+            ].slice(0, 26);
+
+            // Actually the image shows 4 peaks.
+            // Peak 1: Q1'22 start (Low) -> Peak
+            // Peak 2
+            // Peak 3
+            // Peak 4
+            // Let's manually craft 26 points to look like the image.
+            const dataPoints = [
+                7, 6.5, 10, 29, 28, 26, 24, 10, 7, // Wave 1
+                7, 12, 29, 28, 25, 20, 16, 7, // Wave 2
+                7, 14, 29, 28, 24, 19, 16, 22, 23 // Wave 3 & 4 start
+            ];
+            // The image ends at a mid-high point.
+
+            // Re-using the categories from Debt Ratio (Q1'22 - Q1'24)
+            const categoriesPE = [
+                'Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22',
+                'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23',
+                'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24',
+                'Q1\'25', 'Q2\'25', 'Q3\'25', 'Q4\'25',
+                'Q1\'26', 'Q2\'26', 'Q3\'26', 'Q4\'26',
+                'Q1\'27', 'Q2\'27', 'Q3\'27', 'Q4\'27',
+                'Q1\'28', 'Q2\'28'
+            ].slice(0, 26);
+
+            // Let's use the same sparse/full logic as Debt Ratio.
+            // User wants full labels.
+            const categoriesFull = new Array(26).fill('');
+            const quarters = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24'];
+            quarters.forEach((q, index) => {
+                const dataIndex = index * 3;
+                if (dataIndex < 26) {
+                    categoriesFull[dataIndex] = q;
+                }
+            });
+
+            return {
+                categories: categoriesFull,
+                title: 'Định giá P/E',
+                type: 'line' as const,
+                series: [
+                    {
+                        name: 'P/E',
+                        data: dataPoints,
+                        color: '#FFA000', // Gold/Orange
+                    }
+                ]
+            };
+        }
+        return null;
+    }, [symbol]);
+
     return {
         loading,
         superSector: 'Mock',
@@ -412,6 +485,7 @@ export const useFinancialCharts = (symbol: string) => {
         expenseChartData,
         capitalChartData,
         debtRatioChartData,
+        peValuationChartData,
         setAssetChange,
         assetChange,
         setCapitalChange,

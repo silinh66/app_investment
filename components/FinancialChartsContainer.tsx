@@ -45,7 +45,8 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
         capitalChartData,
         setCapitalChange,
         capitalChange,
-        debtRatioChartData
+        debtRatioChartData,
+        peValuationChartData
     } = useFinancialCharts(symbol);
 
     const { theme } = useTheme();
@@ -156,11 +157,6 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                 <View style={styles.chartContainer}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{debtRatioChartData.title}</Text>
-                        {/* No filter needed for this chart based on screenshot, but we can keep consistency if needed. 
-                            The screenshot shows "Quý" dropdown. We can reuse capitalChange or add a new one if strictly needed, 
-                            but for now let's just show the chart. 
-                            Actually, let's just reuse capitalChange for simplicity or add a dummy button.
-                        */}
                         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#2C2D33' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}>
                             <Text style={{ color: isDark ? '#fff' : '#000', fontSize: 12, marginRight: 4 }}>Quý</Text>
                         </View>
@@ -169,6 +165,23 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         data={debtRatioChartData}
                         title=""
                         type={debtRatioChartData.type}
+                    />
+                </View>
+            )}
+
+            {/* P/E Valuation Chart */}
+            {peValuationChartData && (
+                <View style={styles.chartContainer}>
+                    <View style={styles.header}>
+                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{peValuationChartData.title}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#2C2D33' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}>
+                            <Text style={{ color: isDark ? '#fff' : '#000', fontSize: 12, marginRight: 4 }}>Quý</Text>
+                        </View>
+                    </View>
+                    <NativeFinancialChart
+                        data={peValuationChartData}
+                        title=""
+                        type={peValuationChartData.type}
                     />
                 </View>
             )}
