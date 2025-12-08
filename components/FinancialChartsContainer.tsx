@@ -41,7 +41,11 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
         setProfitChange,
         profitChange,
         setExpenseChange,
-        expenseChange
+        expenseChange,
+        capitalChartData,
+        setCapitalChange,
+        capitalChange,
+        debtRatioChartData
     } = useFinancialCharts(symbol);
 
     const { theme } = useTheme();
@@ -128,6 +132,43 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         data={assetChartData}
                         title=""
                         type={assetChartData.type}
+                    />
+                </View>
+            )}
+
+            {/* Capital Chart */}
+            {capitalChartData && (
+                <View style={styles.chartContainer}>
+                    <View style={styles.header}>
+                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{capitalChartData.title}</Text>
+                        <FilterButton label="Thời gian" value={capitalChange} onChange={setCapitalChange} />
+                    </View>
+                    <NativeFinancialChart
+                        data={capitalChartData}
+                        title=""
+                        type={capitalChartData.type}
+                    />
+                </View>
+            )}
+
+            {/* Debt Ratio Chart */}
+            {debtRatioChartData && (
+                <View style={styles.chartContainer}>
+                    <View style={styles.header}>
+                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{debtRatioChartData.title}</Text>
+                        {/* No filter needed for this chart based on screenshot, but we can keep consistency if needed. 
+                            The screenshot shows "Quý" dropdown. We can reuse capitalChange or add a new one if strictly needed, 
+                            but for now let's just show the chart. 
+                            Actually, let's just reuse capitalChange for simplicity or add a dummy button.
+                        */}
+                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#2C2D33' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}>
+                            <Text style={{ color: isDark ? '#fff' : '#000', fontSize: 12, marginRight: 4 }}>Quý</Text>
+                        </View>
+                    </View>
+                    <NativeFinancialChart
+                        data={debtRatioChartData}
+                        title=""
+                        type={debtRatioChartData.type}
                     />
                 </View>
             )}

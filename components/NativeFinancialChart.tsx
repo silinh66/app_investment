@@ -402,6 +402,48 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
             );
         }
 
+        // Line Chart (Debt Ratio)
+        if (type === 'line') {
+            return (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <LineChart
+                        data={{
+                            labels: data.categories,
+                            datasets: data.series.map((s: any) => ({
+                                data: s.data,
+                                color: (opacity = 1) => s.color || `rgba(255, 255, 255, ${opacity})`,
+                                strokeWidth: 2,
+                                withDots: false // Hide dots for smooth wave look
+                            }))
+                        }}
+                        width={Math.max(screenWidth - 48, data.categories.length * 60)} // Wider spacing per point
+                        height={height}
+                        chartConfig={{
+                            ...chartConfig,
+                            backgroundGradientFromOpacity: 0,
+                            backgroundGradientToOpacity: 0,
+                            propsForBackgroundLines: {
+                                strokeDasharray: "4",
+                                stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
+                                strokeWidth: 1
+                            },
+                            decimalPlaces: 1, // Show decimals for ratios (e.g. 1.5)
+                        }}
+                        bezier // Smooth curves
+                        withDots={false}
+                        withShadow={false}
+                        withInnerLines={true}
+                        withOuterLines={false}
+                        withVerticalLines={false}
+                        withHorizontalLines={true}
+                        fromZero={true}
+                        yAxisLabel=""
+                        yAxisSuffix="%"
+                    />
+                </ScrollView>
+            );
+        }
+
         // Default: Column Chart (for Expenses - Negative)
         return (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>

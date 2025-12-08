@@ -327,6 +327,81 @@ export const useFinancialCharts = (symbol: string) => {
         };
     }, [assetChange, symbol]);
 
+    // 6. Capital Chart (Nguồn vốn)
+    const capitalChartData = useMemo(() => {
+        if (symbol === 'SSI') {
+            // "Nguồn vốn" for SSI (Image 6)
+            return {
+                categories: categoriesSSI,
+                title: 'Nguồn vốn',
+                type: 'stacked' as const,
+                series: [
+                    {
+                        name: 'Vốn và các q...', // Blue (Bottom)
+                        data: [15, 14, 22, 22, 23, 21, 22, 23, 24, 25, 27, 29, 31],
+                        color: '#448AFF',
+                        stack: 'total'
+                    },
+                    {
+                        name: 'Nợ dài hạn', // Cyan (Middle - tiny)
+                        data: [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+                        color: '#00E5FF',
+                        stack: 'total'
+                    },
+                    {
+                        name: 'Nợ ngắn hạn', // Gold (Top)
+                        data: [35, 30, 24, 30, 29, 28, 33, 45, 40, 45, 48, 62, 69],
+                        color: '#C99C33',
+                        stack: 'total'
+                    },
+                ]
+            };
+        }
+        return null;
+    }, [capitalChange, symbol]);
+
+    // 7. Debt Ratio Chart (Hệ số nợ)
+    const debtRatioChartData = useMemo(() => {
+        if (symbol === 'SSI') {
+            // "Hệ số nợ" for SSI (Image 7)
+            // Wave pattern: High -> Low -> Mid -> Low -> High
+            const wavePattern = [2.3, 1.8, 1.0, 1.3, 1.2, 1.5, 2.2, 1.8, 1.0, 1.2, 1.1, 1.4, 2.2, 1.8, 1.0, 1.3, 1.2, 1.5, 2.2, 1.8, 1.0, 1.3, 1.2, 1.5, 2.2, 2.2];
+            const wavePattern2 = wavePattern.map(v => v * 0.95); // Slightly lower
+
+            // Generate categories for 26 points, mapping to Q1'22 - Q1'24 (Monthly data resolution)
+            // We want to show EVERY quarter label: Q1'22, Q2'22, Q3'22, Q4'22, Q1'23...
+            // 26 points / ~3 points per quarter = ~8-9 quarters.
+            const categoriesSSI_Debt = new Array(26).fill('');
+            const quarters = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24'];
+
+            quarters.forEach((q, index) => {
+                const dataIndex = index * 3;
+                if (dataIndex < 26) {
+                    categoriesSSI_Debt[dataIndex] = q;
+                }
+            });
+
+            return {
+                categories: categoriesSSI_Debt,
+                title: 'Hệ số nợ',
+                type: 'line' as const,
+                series: [
+                    {
+                        name: 'Nợ/Vốn chủ sở hữu', // Cyan
+                        data: [2.4, 2.0, 1.0, 1.3, 1.2, 1.8, 2.4, 1.8, 1.0, 1.3, 1.2, 1.8, 2.4, 1.8, 1.0, 1.3, 1.2, 1.8, 2.4, 1.8, 1.0, 1.3, 1.2, 1.8, 2.2, 2.2],
+                        color: '#00E5FF',
+                    },
+                    {
+                        name: 'Vay tài chính/Vốn chủ sở hữu', // Gold/Brown
+                        data: [2.2, 1.8, 0.9, 1.2, 1.1, 1.7, 2.2, 1.7, 0.9, 1.2, 1.1, 1.7, 2.2, 1.7, 0.9, 1.2, 1.1, 1.7, 2.2, 1.7, 0.9, 1.2, 1.1, 1.7, 2.1, 2.1],
+                        color: '#C99C33',
+                    },
+                ]
+            };
+        }
+        return null;
+    }, [symbol]);
+
     return {
         loading,
         superSector: 'Mock',
@@ -335,8 +410,12 @@ export const useFinancialCharts = (symbol: string) => {
         revenueChartData,
         profitChartData,
         expenseChartData,
+        capitalChartData,
+        debtRatioChartData,
         setAssetChange,
         assetChange,
+        setCapitalChange,
+        capitalChange,
         setCashFlowChange,
         cashFlowChange,
         setNetRevenueChange,
