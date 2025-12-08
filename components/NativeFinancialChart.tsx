@@ -76,31 +76,76 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
             const hasNegative = data.series.some((s: any) => s.data.some((v: number) => v < 0));
 
             if (hasNegative) {
-                // Fallback to BarChart (Grouped) for negative values to prevent crash
-                // We keep the "downward" visual which is important for expenses
+                // Workaround for Negative Stacked Chart:
+                // 1. Convert data to positive
+                // 2. Render StackedBarChart (stable)
+                // 3. Flip visually using scaleY: -1
+                // 4. Hide chart labels (as they would be mirrored) and render custom labels
+
+                const positiveData = data.categories.map((_: any, index: number) => {
+                    return data.series.map((s: any) => Math.abs(s.data[index] || 0));
+                });
+
+                // Calculate max value for Y-axis scaling
+                const maxVal = Math.max(...positiveData.map((d: number[]) => d.reduce((a, b) => a + b, 0)));
+                const yAxisSteps = 3; // 0, 1T, 2T, 3T
+                const stepValue = Math.ceil(maxVal / yAxisSteps);
+
                 return (
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                        <BarChart
-                            data={{
-                                labels: data.categories,
-                                datasets: data.series.map((s: any) => ({
-                                    data: s.data,
-                                    color: (opacity = 1) => s.color || `rgba(0, 0, 0, ${opacity})`
-                                }))
-                            }}
-                            width={Math.max(screenWidth - 48, data.categories.length * 50)}
-                            height={height}
-                            chartConfig={{
-                                ...chartConfig,
-                                barPercentage: 0.6,
-                            }}
-                            withInnerLines={true}
-                            showBarTops={false}
-                            fromZero={true}
-                            yAxisLabel=""
-                            yAxisSuffix="T"
-                        />
-                    </ScrollView>
+                    <View style={{ flexDirection: 'row' }}>
+                        {/* Custom Y-Axis Labels (Left) */}
+                        <View style={{ justifyContent: 'space-between', height: height - 40, paddingBottom: 20, paddingRight: 8 }}>
+                            {[0, 1, 2, 3].map((i) => (
+                                <Text key={i} style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
+                                    {i === 0 ? '0' : `-${i * stepValue}T`}
+                                </Text>
+                            ))}
+                        </View>
+
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                            <View>
+                                {/* Flipped Chart */}
+                                <View style={{ transform: [{ scaleY: -1 }] }}>
+                                    <StackedBarChart
+                                        data={{
+                                            labels: data.categories,
+                                            legend: [],
+                                            data: positiveData,
+                                            barColors: data.series.map((s: any) => s.color || '#000')
+                                        }}
+                                        width={Math.max(screenWidth - 80, data.categories.length * 50)}
+                                        height={height - 20}
+                                        chartConfig={{
+                                            ...chartConfig,
+                                            barPercentage: 0.6,
+                                            propsForBackgroundLines: {
+                                                strokeDasharray: "4",
+                                                stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
+                                                strokeWidth: 1
+                                            },
+                                            // Hide labels in the chart itself
+                                            color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                                            labelColor: () => 'transparent',
+                                        }}
+                                        hideLegend={true}
+                                        withHorizontalLabels={false}
+                                        withVerticalLabels={false}
+                                    />
+                                </View>
+
+                                {/* Custom X-Axis Labels (Bottom) */}
+                                <View style={{ flexDirection: 'row', marginTop: 4, paddingLeft: 10 }}>
+                                    {data.categories.map((label: string, index: number) => (
+                                        <View key={index} style={{ width: 50, alignItems: 'center' }}>
+                                            <Text style={{ fontSize: 10, fontWeight: '600', color: isDark ? '#9CA3AF' : '#6B7280' }}>
+                                                {label}
+                                            </Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            </View>
+                        </ScrollView>
+                    </View>
                 );
             }
 
