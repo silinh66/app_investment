@@ -20,7 +20,7 @@ interface NativeFinancialChartProps {
 const LegendItem = ({ color, label }: { color: string, label: string }) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16, marginBottom: 8 }}>
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color, marginRight: 6 }} />
-        <Text style={{ fontSize: 11, color: '#9CA3AF', fontWeight: '500' }}>{label}</Text>
+        <Text style={{ fontSize: 10, color: '#9CA3AF', fontWeight: '500' }}>{label}</Text>
     </View>
 );
 

@@ -20,6 +20,7 @@ export const listTabs = [
   { key: "bien-dong", title: "Trang chủ" },
   { key: "co-phieu", title: "Cổ phiếu" },
   { key: "bang-gia", title: "Biến động" },
+  { key: "suc-manh-thi-truong", title: "Sức mạnh thị trường" },
   // { key: "tin-tuc", title: "Tin tức" },
   { key: "thi-truong", title: "Thị trường" },
   { key: "tien-te", title: "Tiền tệ" },
@@ -32,6 +33,7 @@ import BangGiaTab from "../home_tab/BangGiaTab";
 import TinTucTab from "../home_tab/TinTucTab";
 import ThiTruongTab from "../home_tab/ThiTruongTab";
 import TienTeTab from "../home_tab/TienTeTab";
+import SucManhThiTruongTab from "../home_tab/SucManhThiTruongTab";
 
 const renderScene = SceneMap({
   "bien-dong": BienDongTab,
@@ -40,6 +42,7 @@ const renderScene = SceneMap({
   "tin-tuc": TinTucTab,
   "thi-truong": ThiTruongTab,
   "tien-te": TienTeTab,
+  "suc-manh-thi-truong": SucManhThiTruongTab,
 });
 
 export default function HomeScreen() {
