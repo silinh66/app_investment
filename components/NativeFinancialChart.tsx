@@ -67,9 +67,22 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
     };
 
     const renderChart = () => {
+        // Helper to determine if label should be shown (every 2nd label from the end)
+        const shouldShowLabel = (index: number, total: number) => {
+            return (total - 1 - index) % 2 === 0;
+        };
+
+        const processedLabels = data.categories.map((label: string, index: number) =>
+            shouldShowLabel(index, data.categories.length) ? label : ''
+        );
+
+        // Common Width Adjustment to reduce right padding
+        // Changed from -80 to -40 to push content closer to edges
+        const availableWidth = screenWidth - 32;
+
         // Stacked Bar Chart (Assets, Revenue Structure, etc.)
         if (type === 'stacked') {
-            const labels = data.categories;
+            const labels = processedLabels;
             const chartData = data.categories.map((_: any, index: number) => {
                 return data.series.map((s: any) => s.data[index] || 0);
             });
@@ -79,23 +92,17 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
             const hasNegative = data.series.some((s: any) => s.data.some((v: number) => v < 0));
 
             if (hasNegative) {
-                // Workaround for Negative Stacked Chart:
-                // 1. Convert data to positive
-                // 2. Render StackedBarChart (stable)
-                // 3. Flip visually using scaleY: -1
-                // 4. Hide chart labels (as they would be mirrored) and render custom labels
-
+                // Workaround for Negative Stacked Chart
                 const positiveData = data.categories.map((_: any, index: number) => {
                     return data.series.map((s: any) => Math.abs(s.data[index] || 0));
                 });
 
-                // Calculate max value for Y-axis scaling
                 const maxVal = Math.max(...positiveData.map((d: number[]) => d.reduce((a, b) => a + b, 0)));
-                const yAxisSteps = 3; // 0, 1T, 2T, 3T
+                const yAxisSteps = 3;
                 const stepValue = Math.ceil(maxVal / yAxisSteps);
 
                 // Calculate dynamic width to ensure alignment
-                const itemWidth = (screenWidth - 80) / data.categories.length;
+                const itemWidth = availableWidth / data.categories.length;
                 const chartWidth = itemWidth * data.categories.length;
 
                 return (
@@ -115,7 +122,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                 <View style={{ transform: [{ scaleY: -1 }] }}>
                                     <StackedBarChart
                                         data={{
-                                            labels: data.categories,
+                                            labels: processedLabels,
                                             legend: [],
                                             data: positiveData,
                                             barColors: data.series.map((s: any) => s.color || '#000')
@@ -124,28 +131,28 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                         height={height - 20}
                                         chartConfig={{
                                             ...chartConfig,
-                                            barPercentage: 0.5,
+                                            barPercentage: 0.35, // Thinner bars
                                             propsForBackgroundLines: {
                                                 strokeDasharray: "4",
                                                 stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
                                                 strokeWidth: 1
                                             },
-                                            // Hide labels in the chart itself
                                             color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
                                             labelColor: () => 'transparent',
                                         }}
                                         hideLegend={true}
+                                        style={{ paddingRight: 0 }}
                                         withHorizontalLabels={false}
                                         withVerticalLabels={false}
                                     />
                                 </View>
 
                                 {/* Custom X-Axis Labels (Bottom) */}
-                                <View style={{ flexDirection: 'row', marginTop: 4, paddingLeft: 10 }}>
+                                <View style={{ flexDirection: 'row', marginTop: 4, paddingLeft: 0 }}>
                                     {data.categories.map((label: string, index: number) => (
                                         <View key={index} style={{ width: itemWidth, alignItems: 'center' }}>
                                             <Text style={{ fontSize: 10, fontWeight: '600', color: isDark ? '#9CA3AF' : '#6B7280' }}>
-                                                {label}
+                                                {shouldShowLabel(index, data.categories.length) ? label : ''}
                                             </Text>
                                         </View>
                                     ))}
@@ -160,18 +167,19 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <StackedBarChart
                         data={{
-                            labels,
+                            labels: processedLabels,
                             legend: [],
                             data: chartData,
                             barColors
                         }}
-                        width={Math.max(screenWidth - 80, labels.length * 30)}
+                        width={Math.max(availableWidth, labels.length * 30)}
                         height={height}
                         chartConfig={{
                             ...chartConfig,
-                            barPercentage: 0.6,
+                            barPercentage: 0.35, // Thinner bars
                         }}
                         hideLegend={true}
+                        style={{ paddingRight: 0 }}
                         yAxisLabel=""
                         yAxisSuffix=""
                     />
@@ -184,15 +192,13 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
             const columnSeries = data.series.filter((s: any) => s.type === 'column');
             const lineSeries = data.series.filter((s: any) => s.type === 'line');
 
-            const chartWidth = Math.max(screenWidth - 80, data.categories.length * 30);;
+            const chartWidth = Math.max(availableWidth, data.categories.length * 30);
 
-            // Check if we need complex "Split Stack" (Positive + Negative Stacks)
-            // This is needed for SSI Cash Flow which has mixed pos/neg values in columns
+            // Check if we need complex "Split Stack" values
             const hasNegative = columnSeries.some((s: any) => s.data.some((v: number) => v < 0));
             const isStackedBase = columnSeries.length > 1;
 
             if (hasNegative && isStackedBase) {
-                // 1. Prepare Data
                 const posSeries = columnSeries.map((s: any) => ({
                     ...s,
                     data: s.data.map((v: number) => Math.max(0, v))
@@ -202,9 +208,6 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                     data: s.data.map((v: number) => Math.abs(Math.min(0, v)))
                 }));
 
-                // 2. Calculate Global Max for Scaling
-                // We need both charts (Pos & Neg) to have the SAME scale so they align
-                // And the Line Chart needs to cover -Max to +Max
                 let maxStackVal = 0;
                 data.categories.forEach((_: any, i: number) => {
                     const posSum = posSeries.reduce((acc: number, s: any) => acc + s.data[i], 0);
@@ -212,10 +215,8 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                     maxStackVal = Math.max(maxStackVal, posSum, negSum);
                 });
 
-                // Add buffer and round up
                 const limit = Math.ceil(maxStackVal * 1.1);
 
-                // 3. Add Spacers to force scale
                 const posDataWithSpacer = data.categories.map((_: any, i: number) => {
                     const stackSum = posSeries.reduce((acc: number, s: any) => acc + s.data[i], 0);
                     return [...posSeries.map((s: any) => s.data[i]), limit - stackSum];
@@ -227,15 +228,12 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
 
                 const barColors = [...columnSeries.map((s: any) => s.color), 'transparent'];
 
-                // 4. Line Chart Data (Force scale -Limit to +Limit)
-                // We add hidden datasets with [limit] and [-limit] to force the scale
                 const lineDatasets = lineSeries.map((s: any) => ({
                     data: s.data,
                     color: (opacity = 1) => s.color || `rgba(255, 255, 255, ${opacity})`,
                     strokeWidth: 2,
                     withDots: false
                 }));
-                // Add invisible bounds
                 lineDatasets.push({
                     data: new Array(data.categories.length).fill(limit),
                     color: () => 'transparent',
@@ -250,7 +248,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                 });
 
                 const halfHeight = height / 2;
-                const fixPadding = 30; // Increase height to push X-axis labels/padding out of view
+                const fixPadding = 30;
 
                 return (
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -259,7 +257,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                             <View style={{ height: halfHeight, width: chartWidth, overflow: 'hidden' }}>
                                 <StackedBarChart
                                     data={{
-                                        labels: data.categories,
+                                        labels: processedLabels,
                                         legend: [],
                                         data: posDataWithSpacer,
                                         barColors
@@ -268,12 +266,13 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                     height={halfHeight + fixPadding}
                                     chartConfig={{
                                         ...chartConfig,
-                                        barPercentage: 0.6,
-                                        propsForBackgroundLines: { strokeWidth: 0 }, // Hide grid lines in sub-charts
+                                        barPercentage: 0.35, // Thinner bars
+                                        propsForBackgroundLines: { strokeWidth: 0 },
                                         color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
-                                        labelColor: () => 'transparent', // Hide labels
+                                        labelColor: () => 'transparent',
                                     }}
                                     hideLegend={true}
+                                    style={{ paddingRight: 0 }}
                                     withHorizontalLabels={false}
                                     withVerticalLabels={false}
                                 />
@@ -283,7 +282,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                             <View style={{ height: halfHeight, width: chartWidth, transform: [{ scaleY: -1 }], overflow: 'hidden' }}>
                                 <StackedBarChart
                                     data={{
-                                        labels: data.categories,
+                                        labels: processedLabels,
                                         legend: [],
                                         data: negDataWithSpacer,
                                         barColors
@@ -292,22 +291,23 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                     height={halfHeight + fixPadding}
                                     chartConfig={{
                                         ...chartConfig,
-                                        barPercentage: 0.6,
+                                        barPercentage: 0.35, // Thinner bars
                                         propsForBackgroundLines: { strokeWidth: 0 },
                                         color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
                                         labelColor: () => 'transparent',
                                     }}
                                     hideLegend={true}
+                                    style={{ paddingRight: 0 }}
                                     withHorizontalLabels={false}
                                     withVerticalLabels={false}
                                 />
                             </View>
 
-                            {/* Overlay: Line Chart (Full Height) */}
+                            {/* Overlay: Line Chart */}
                             <View style={{ position: 'absolute', top: 0, left: 0, height: height, width: chartWidth }} pointerEvents="none">
                                 <LineChart
                                     data={{
-                                        labels: data.categories,
+                                        labels: processedLabels,
                                         datasets: lineDatasets
                                     }}
                                     width={chartWidth}
@@ -330,13 +330,14 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                     withOuterLines={false}
                                     withVerticalLines={false}
                                     withHorizontalLines={true}
-                                    fromZero={false} // We handle scale manually
+                                    fromZero={false}
                                     bezier
                                     withDots={false}
                                     withShadow={false}
                                     yAxisLabel=""
                                     yAxisSuffix=""
-                                    segments={4} // Ensure 0 is in middle? No, 4 segments means 5 lines. -L, -L/2, 0, L/2, L
+                                    segments={4}
+                                    style={{ paddingRight: 0 }}
                                 />
                             </View>
                         </View>
@@ -350,7 +351,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                         {/* Base Chart */}
                         <BarChart
                             data={{
-                                labels: data.categories,
+                                labels: processedLabels,
                                 datasets: columnSeries.map((s: any) => ({
                                     data: s.data,
                                     color: (opacity = 1) => s.color || `rgba(0, 0, 0, ${opacity})`
@@ -360,10 +361,11 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                             height={height}
                             chartConfig={{
                                 ...chartConfig,
-                                barPercentage: 0.6,
+                                barPercentage: 0.35, // Thinner bars
                             }}
                             withInnerLines={true}
                             showBarTops={false}
+                            style={{ paddingRight: 0 }}
                             fromZero={true}
                             yAxisLabel=""
                             yAxisSuffix=""
@@ -374,7 +376,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                             <View style={{ position: 'absolute', top: 0, left: 0 }}>
                                 <LineChart
                                     data={{
-                                        labels: data.categories,
+                                        labels: processedLabels,
                                         datasets: lineSeries.map((s: any) => ({
                                             data: s.data,
                                             color: (opacity = 1) => s.color || `rgba(255, 255, 255, ${opacity})`,
@@ -392,6 +394,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                         color: (opacity = 1) => lineSeries[0].color || `rgba(255, 255, 255, ${opacity})`,
                                     }}
                                     withInnerLines={false}
+                                    style={{ paddingRight: 0 }}
                                     withOuterLines={false}
                                     withVerticalLines={false}
                                     withHorizontalLines={false}
@@ -415,15 +418,15 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <LineChart
                         data={{
-                            labels: data.categories,
+                            labels: processedLabels,
                             datasets: data.series.map((s: any) => ({
                                 data: s.data,
                                 color: (opacity = 1) => s.color || `rgba(255, 255, 255, ${opacity})`,
                                 strokeWidth: 2,
-                                withDots: false // Hide dots for smooth wave look
+                                withDots: false
                             }))
                         }}
-                        width={Math.max(screenWidth - 80, data.categories.length * 35)} // Wider spacing per point
+                        width={Math.max(availableWidth, data.categories.length * 35)}
                         height={height}
                         chartConfig={{
                             ...chartConfig,
@@ -434,9 +437,9 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                 stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
                                 strokeWidth: 1
                             },
-                            decimalPlaces: 1, // Show decimals for ratios (e.g. 1.5)
+                            decimalPlaces: 1,
                         }}
-                        bezier // Smooth curves
+                        bezier
                         withDots={false}
                         withShadow={false}
                         withInnerLines={true}
@@ -446,6 +449,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                         fromZero={true}
                         yAxisLabel=""
                         yAxisSuffix="%"
+                        style={{ paddingRight: 0 }}
                     />
                 </ScrollView>
             );
@@ -456,16 +460,17 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <BarChart
                     data={{
-                        labels: data.categories,
+                        labels: processedLabels,
                         datasets: data.series.map((s: any) => ({
                             data: s.data,
                             color: (opacity = 1) => s.color || `rgba(0, 0, 0, ${opacity})`
                         }))
                     }}
-                    width={Math.max(screenWidth - 80, data.categories.length * 30)}
+                    width={Math.max(availableWidth, data.categories.length * 30)}
                     height={height}
                     chartConfig={chartConfig}
                     showBarTops={false}
+                    style={{ paddingRight: 0 }}
                     fromZero={true} // Important for negative values
                     yAxisLabel=""
                     yAxisSuffix=""

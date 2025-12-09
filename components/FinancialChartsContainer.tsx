@@ -92,148 +92,133 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
         <View style={{ flex: 1, padding: 8 }}>
             {/* Revenue Chart */}
             {revenueChartData && (
-                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{revenueChartData.title}</Text>
-                        <FilterButton label="Thời gian" value={netRevenueChange} onChange={setNetRevenueChange} />
+                <View style={styles.chartContainer}>
+                    <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{revenueChartData.title}</Text>
+                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                        <NativeFinancialChart
+                            data={filterRecentQuarters(revenueChartData)}
+                            title=""
+                            type={revenueChartData.type}
+                            unit="(Tỷ)"
+                        />
                     </View>
-                    <NativeFinancialChart
-                        data={filterRecentQuarters(revenueChartData)}
-                        title=""
-                        type={revenueChartData.type}
-                        unit="(Tỷ)"
-                    />
                 </View>
             )}
 
             {/* Profit Chart */}
             {profitChartData && (
-                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{profitChartData.title}</Text>
-                        <FilterButton label="Thời gian" value={profitChange} onChange={setProfitChange} />
+                <View style={styles.chartContainer}>
+                    <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{profitChartData.title}</Text>
+                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                        <NativeFinancialChart
+                            data={filterRecentQuarters(profitChartData)}
+                            title=""
+                            type={profitChartData.type}
+                            unit="(Tỷ)"
+                        />
                     </View>
-                    <NativeFinancialChart
-                        data={filterRecentQuarters(profitChartData)}
-                        title=""
-                        type={profitChartData.type}
-                        unit="(Tỷ)"
-                    />
                 </View>
             )}
 
             {/* Expense/Margin Chart */}
             {expenseChartData && (
-                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{expenseChartData.title}</Text>
-                        <FilterButton label="Thời gian" value={expenseChange} onChange={setExpenseChange} />
+                <View style={styles.chartContainer}>
+                    <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{expenseChartData.title}</Text>
+                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                        <NativeFinancialChart
+                            data={filterRecentQuarters(expenseChartData)}
+                            title=""
+                            type={expenseChartData.type}
+                            unit="(Tỷ)"
+                        />
                     </View>
-                    <NativeFinancialChart
-                        data={filterRecentQuarters(expenseChartData)}
-                        title=""
-                        type={expenseChartData.type}
-                        unit="(Tỷ)"
-                    />
                 </View>
             )}
 
             {/* Cash Flow Chart */}
             {cashFlowChartData && (
-                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{cashFlowChartData.title}</Text>
-                        <FilterButton label="Thời gian" value={cashFlowChange} onChange={setCashFlowChange} />
+                <View style={styles.chartContainer}>
+                    <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{cashFlowChartData.title}</Text>
+                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                        <NativeFinancialChart
+                            data={filterRecentQuarters(cashFlowChartData)}
+                            title=""
+                            type={cashFlowChartData.type}
+                            unit="(Tỷ)"
+                        />
                     </View>
-                    <NativeFinancialChart
-                        data={filterRecentQuarters(cashFlowChartData)}
-                        title=""
-                        type={cashFlowChartData.type}
-                        unit="(Tỷ)"
-                    />
                 </View>
             )}
 
             {/* Asset Chart */}
             {assetChartData && (
-                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{assetChartData.title}</Text>
-                        <FilterButton label="Thời gian" value={assetChange} onChange={setAssetChange} />
+                <View style={styles.chartContainer}>
+                    <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{assetChartData.title}</Text>
+                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                        <NativeFinancialChart
+                            data={filterRecentQuarters(assetChartData)}
+                            title=""
+                            type={assetChartData.type}
+                            unit="(Tỷ)"
+                        />
                     </View>
-                    <NativeFinancialChart
-                        data={filterRecentQuarters(assetChartData)}
-                        title=""
-                        type={assetChartData.type}
-                        unit="(Tỷ)"
-                    />
                 </View>
             )}
 
             {/* Capital Chart */}
             {capitalChartData && (
-                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{capitalChartData.title}</Text>
-                        <FilterButton label="Thời gian" value={capitalChange} onChange={setCapitalChange} />
+                <View style={styles.chartContainer}>
+                    <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{capitalChartData.title}</Text>
+                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                        <NativeFinancialChart
+                            data={filterRecentQuarters(capitalChartData)}
+                            title=""
+                            type={capitalChartData.type}
+                            unit="(Tỷ)"
+                        />
                     </View>
-                    <NativeFinancialChart
-                        data={filterRecentQuarters(capitalChartData)}
-                        title=""
-                        type={capitalChartData.type}
-                        unit="(Tỷ)"
-                    />
                 </View>
             )}
 
             {/* Debt Ratio Chart */}
             {debtRatioChartData && (
-                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{debtRatioChartData.title}</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#2C2D33' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}>
-                            <Text style={{ color: isDark ? '#fff' : '#000', fontSize: 12, marginRight: 4 }}>Quý</Text>
-                        </View>
+                <View style={styles.chartContainer}>
+                    <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{debtRatioChartData.title}</Text>
+                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                        <NativeFinancialChart
+                            data={filterRecentQuarters(debtRatioChartData)}
+                            title=""
+                            type={debtRatioChartData.type}
+                        />
                     </View>
-                    <NativeFinancialChart
-                        data={filterRecentQuarters(debtRatioChartData)}
-                        title=""
-                        type={debtRatioChartData.type}
-                    />
                 </View>
             )}
 
             {/* P/E Valuation Chart */}
             {peValuationChartData && (
-                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{peValuationChartData.title}</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#2C2D33' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}>
-                            <Text style={{ color: isDark ? '#fff' : '#000', fontSize: 12, marginRight: 4 }}>Quý</Text>
-                        </View>
+                <View style={styles.chartContainer}>
+                    <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{peValuationChartData.title}</Text>
+                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                        <NativeFinancialChart
+                            data={filterRecentQuarters(peValuationChartData)}
+                            title=""
+                            type={peValuationChartData.type}
+                        />
                     </View>
-                    <NativeFinancialChart
-                        data={filterRecentQuarters(peValuationChartData)}
-                        title=""
-                        type={peValuationChartData.type}
-                    />
                 </View>
             )}
 
             {/* P/B Valuation Chart */}
             {pbValuationChartData && (
-                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{pbValuationChartData.title}</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#2C2D33' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}>
-                            <Text style={{ color: isDark ? '#fff' : '#000', fontSize: 12, marginRight: 4 }}>Quý</Text>
-                        </View>
+                <View style={styles.chartContainer}>
+                    <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{pbValuationChartData.title}</Text>
+                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                        <NativeFinancialChart
+                            data={filterRecentQuarters(pbValuationChartData)}
+                            title=""
+                            type={pbValuationChartData.type}
+                        />
                     </View>
-                    <NativeFinancialChart
-                        data={filterRecentQuarters(pbValuationChartData)}
-                        title=""
-                        type={pbValuationChartData.type}
-                    />
                 </View>
             )}
 
