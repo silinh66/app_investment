@@ -114,7 +114,9 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                             data={filterRecentQuarters(profitChartData)}
                             title=""
                             type={profitChartData.type}
-                            unit="(Tỷ)"
+                            unit={profitChartData.unit}
+                            unitLeft={profitChartData.unitLeft}
+                            unitRight={profitChartData.unitRight}
                         />
                     </View>
                 </View>

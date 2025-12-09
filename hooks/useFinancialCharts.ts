@@ -32,6 +32,9 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
     // SSI Categories from Image: Q1'22 ... Q3'25 (15 quarters)
     const categoriesSSI = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24', 'Q1\'25', 'Q2\'25', 'Q3\'25'];
 
+    // BVH Profit Categories: Q1'22 ... Q3'25 (15 quarters)
+    const categoriesBVH_Profit = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24', 'Q1\'25', 'Q2\'25', 'Q3\'25'];
+
     // 1. Revenue Chart (SHB - Thu nhập lãi) OR SSI Profit Structure
     const revenueChartData = useMemo(() => {
         if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
@@ -78,8 +81,33 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
         return null; // Return null for non-supported industries for now
     }, [netRevenueChange, symbol, industry]);
 
-    // 2. Profit Chart (SHB - Lợi nhuận sau thuế) OR SSI Revenue Structure
+    // 2. Profit Chart (SHB - Lợi nhuận sau thuế) OR SSI Revenue Structure OR BVH Profit
     const profitChartData = useMemo(() => {
+        if (symbol === 'BVH' || industry === 'Bảo hiểm') {
+            // "Lợi nhuận sau thuế của doanh nghiệp" for BVH
+            return {
+                categories: categoriesBVH_Profit,
+                title: 'Lợi nhuận sau thuế của doanh nghiệp',
+                type: 'mixed' as const,
+                unitLeft: '(Tỷ)',
+                unitRight: '%',
+                series: [
+                    {
+                        name: 'Lợi nhuận sau thuế thu nhập',
+                        data: [480, 330, 380, 320, 540, 400, 430, 350, 580, 420, 530, 660, 650, 740, 760],
+                        color: '#00E676', // Green
+                        type: 'column'
+                    },
+                    {
+                        name: 'Tăng trưởng cùng kỳ',
+                        data: [0, -20, -15, -35, 18, 20, 10, 8, 9, 15, 25, 0, 0, 0, 0], // Estimated %
+                        color: '#76FF03', // Light Green line
+                        type: 'line'
+                    }
+                ]
+            };
+        }
+
         if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Cơ cấu doanh thu" for SSI (Image 2) - Mapped to second slot
             return {

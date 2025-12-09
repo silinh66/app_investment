@@ -670,7 +670,7 @@ export default function StockDetailScreen() {
 
   // Profile tab data states
   const [detailInfoSymbol, setDetailInfoSymbol] = useState<any>(null);
-
+  console.log("detailInfoSymbol", detailInfoSymbol);
   const [listAnalysisReport, setListAnalysisReport] = useState<any[]>([]);
   const [newsData, setNewsData] = useState<any[]>([]);
   const [downloadReportMap, setDownloadReportMap] = useState<any[]>([]);

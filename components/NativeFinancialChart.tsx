@@ -15,6 +15,8 @@ interface NativeFinancialChartProps {
     type?: 'column' | 'line' | 'mixed' | 'stacked';
     height?: number;
     unit?: string;
+    unitLeft?: string;
+    unitRight?: string;
 }
 
 const LegendItem = ({ color, label }: { color: string, label: string }) => (
@@ -24,7 +26,7 @@ const LegendItem = ({ color, label }: { color: string, label: string }) => (
     </View>
 );
 
-const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title, type = 'column', height = 260, unit }) => {
+const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title, type = 'column', height = 260, unit, unitLeft, unitRight }) => {
     const { theme } = useTheme();
     const isDark = theme.mode === 'dark';
 
@@ -345,10 +347,20 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                 );
             }
 
+            // Config for BarChart to ensure bars are visible (Solid 100% opacity)
+            const barChartConfig = {
+                ...chartConfig,
+                fillShadowGradientFrom: columnSeries[0]?.color ?? '#00E676',
+                fillShadowGradientTo: columnSeries[0]?.color ?? '#00E676',
+                fillShadowGradientFromOpacity: 1,
+                fillShadowGradientToOpacity: 1,
+                barPercentage: 0.5, // Thicker bars like sample
+            };
+
             return (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <View>
-                        {/* Base Chart */}
+                        {/* Base Chart - Columns */}
                         <BarChart
                             data={{
                                 labels: processedLabels,
@@ -359,13 +371,10 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                             }}
                             width={chartWidth}
                             height={height}
-                            chartConfig={{
-                                ...chartConfig,
-                                barPercentage: 0.35, // Thinner bars
-                            }}
+                            chartConfig={barChartConfig}
                             withInnerLines={true}
                             showBarTops={false}
-                            style={{ paddingRight: 0 }}
+                            style={{ paddingRight: unitRight ? 40 : 0 }} // Add padding for right axis if needed
                             fromZero={true}
                             yAxisLabel=""
                             yAxisSuffix=""
@@ -392,19 +401,49 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                         backgroundGradientToOpacity: 0,
                                         propsForBackgroundLines: { strokeWidth: 0 },
                                         color: (opacity = 1) => lineSeries[0].color || `rgba(255, 255, 255, ${opacity})`,
+                                        // Hide Left Y-Axis labels if we are in dual axis mode (assume Line is Right Axis)
+                                        // We set labelColor to transparent for Y-axis? No, that hides X-axis too.
+                                        // We can use yAxisLabel with a special character or just let them overlap if we don't handle it?
+                                        // Better: If unitRight is set, we assume this LineChart corresponds to Right Axis.
+                                        // React Native Chart Kit doesn't support hiding ONLY Y-axis labels via config easily.
+                                        // But we can set `withVerticalLabels={false}` (Hides X-Axis labels - which we want, as BarChart has them).
+                                        // Wait, `withVerticalLabels` controls X-axis labels (vertical lines).
+                                        // `withHorizontalLabels` controls Y-axis labels.
                                     }}
                                     withInnerLines={false}
-                                    style={{ paddingRight: 0 }}
+                                    style={{ paddingRight: unitRight ? 40 : 0 }}
                                     withOuterLines={false}
                                     withVerticalLines={false}
                                     withHorizontalLines={false}
-                                    fromZero={true}
+                                    fromZero={false} // Line chart might go negative (growth %)
                                     bezier
                                     withDots={false}
                                     withShadow={false}
                                     yAxisLabel=""
-                                    yAxisSuffix=""
+                                    yAxisSuffix={unitRight || ""}
+                                    withVerticalLabels={false} // Hide X-Axis labels on overlay to prevent overlap with BarChart
+                                    withHorizontalLabels={!unitRight} // Hide Left Y-Axis labels if we want to simulate Right Axis visually?
+                                // Actually if we hide Left Labels, we still need to render Right Labels.
+                                // ChartKit doesn't render Right Labels.
+                                // We will render a second LineChart for the Right Labels?? No.
+                                // For now, let's keep it simple: Render LineChart on top. If unitRight is used, we might accept that it renders on Left (standard overlap) OR we try to move it.
+                                // The user sample has 2 columns (axes).
+                                // If we can't move it to right easily, at least ensure it renders.
                                 />
+                                {unitRight && (
+                                    // Manual Right Axis Labels Simulation
+                                    <View style={{ position: 'absolute', right: 0, top: 10, height: height - 20, justifyContent: 'space-between' }}>
+                                        <Text style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
+                                            {Math.max(...lineSeries[0].data)}%
+                                        </Text>
+                                        <Text style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
+                                            0%
+                                        </Text>
+                                        <Text style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
+                                            {Math.min(...lineSeries[0].data)}%
+                                        </Text>
+                                    </View>
+                                )}
                             </View>
                         )}
                     </View>
@@ -481,20 +520,30 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
 
     return (
         <View style={{
-            // Removed inner card styling to unify background with parent
             marginTop: 12,
         }}>
-            {unit && (
-                <Text style={{
-                    fontSize: 10,
-                    color: isDark ? '#9CA3AF' : '#6B7280',
-                    marginBottom: 4,
-                    marginLeft: 4, // Align roughly with Y-axis
-                    fontWeight: '500'
-                }}>
-                    {unit}
-                </Text>
-            )}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 4 }}>
+                {(unit || unitLeft) && (
+                    <Text style={{
+                        fontSize: 10,
+                        color: isDark ? '#9CA3AF' : '#6B7280',
+                        marginBottom: 4,
+                        fontWeight: '500'
+                    }}>
+                        {unit || unitLeft}
+                    </Text>
+                )}
+                {unitRight && (
+                    <Text style={{
+                        fontSize: 10,
+                        color: isDark ? '#9CA3AF' : '#6B7280',
+                        marginBottom: 4,
+                        fontWeight: '500'
+                    }}>
+                        {unitRight}
+                    </Text>
+                )}
+            </View>
             {renderChart()}
             {renderLegend()}
         </View>
