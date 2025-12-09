@@ -34,7 +34,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
         backgroundGradientTo: isDark ? "#1A1B20" : "#ffffff",
         color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
         strokeWidth: 2,
-        barPercentage: 0.5,
+        barPercentage: 0.3,
         useShadowColorFromDataset: false,
         decimalPlaces: 0,
         labelColor: (opacity = 1) => isDark ? `rgba(156, 163, 175, ${opacity})` : `rgba(107, 114, 128, ${opacity})`,
@@ -91,6 +91,10 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                 const yAxisSteps = 3; // 0, 1T, 2T, 3T
                 const stepValue = Math.ceil(maxVal / yAxisSteps);
 
+                // Calculate dynamic width to ensure alignment
+                const itemWidth = (screenWidth - 80) / data.categories.length;
+                const chartWidth = itemWidth * data.categories.length;
+
                 return (
                     <View style={{ flexDirection: 'row' }}>
                         {/* Custom Y-Axis Labels (Left) */}
@@ -113,11 +117,11 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                             data: positiveData,
                                             barColors: data.series.map((s: any) => s.color || '#000')
                                         }}
-                                        width={Math.max(screenWidth - 80, data.categories.length * 50)}
+                                        width={chartWidth}
                                         height={height - 20}
                                         chartConfig={{
                                             ...chartConfig,
-                                            barPercentage: 0.6,
+                                            barPercentage: 0.5,
                                             propsForBackgroundLines: {
                                                 strokeDasharray: "4",
                                                 stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
@@ -136,7 +140,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                 {/* Custom X-Axis Labels (Bottom) */}
                                 <View style={{ flexDirection: 'row', marginTop: 4, paddingLeft: 10 }}>
                                     {data.categories.map((label: string, index: number) => (
-                                        <View key={index} style={{ width: 50, alignItems: 'center' }}>
+                                        <View key={index} style={{ width: itemWidth, alignItems: 'center' }}>
                                             <Text style={{ fontSize: 10, fontWeight: '600', color: isDark ? '#9CA3AF' : '#6B7280' }}>
                                                 {label}
                                             </Text>
@@ -158,7 +162,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                             data: chartData,
                             barColors
                         }}
-                        width={Math.max(screenWidth - 48, labels.length * 50)}
+                        width={Math.max(screenWidth - 80, labels.length * 30)}
                         height={height}
                         chartConfig={{
                             ...chartConfig,
@@ -177,7 +181,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
             const columnSeries = data.series.filter((s: any) => s.type === 'column');
             const lineSeries = data.series.filter((s: any) => s.type === 'line');
 
-            const chartWidth = Math.max(screenWidth - 48, data.categories.length * 50);
+            const chartWidth = Math.max(screenWidth - 80, data.categories.length * 30);;
 
             // Check if we need complex "Split Stack" (Positive + Negative Stacks)
             // This is needed for SSI Cash Flow which has mixed pos/neg values in columns
@@ -416,7 +420,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                 withDots: false // Hide dots for smooth wave look
                             }))
                         }}
-                        width={Math.max(screenWidth - 48, data.categories.length * 60)} // Wider spacing per point
+                        width={Math.max(screenWidth - 80, data.categories.length * 35)} // Wider spacing per point
                         height={height}
                         chartConfig={{
                             ...chartConfig,
@@ -455,7 +459,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                             color: (opacity = 1) => s.color || `rgba(0, 0, 0, ${opacity})`
                         }))
                     }}
-                    width={Math.max(screenWidth - 48, data.categories.length * 50)}
+                    width={Math.max(screenWidth - 80, data.categories.length * 30)}
                     height={height}
                     chartConfig={chartConfig}
                     showBarTops={false}

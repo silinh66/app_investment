@@ -53,6 +53,31 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
     const { theme } = useTheme();
     const isDark = theme.mode === 'dark';
 
+    // Helper to keep only the last 8 quarters
+    const filterRecentQuarters = (data: any, count: number = 8) => {
+        if (!data || !data.categories || !data.series) return data;
+
+        const len = data.categories.length;
+        if (len <= count) return data;
+
+        const startIndex = len - count;
+
+        // Slice categories
+        const newCategories = data.categories.slice(startIndex);
+
+        // Slice series data
+        const newSeries = data.series.map((s: any) => ({
+            ...s,
+            data: s.data.slice(startIndex)
+        }));
+
+        return {
+            ...data,
+            categories: newCategories,
+            series: newSeries
+        };
+    };
+
     if (loading) {
         return (
             <View style={{ padding: 20, alignItems: 'center' }}>
@@ -71,7 +96,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         <FilterButton label="Thời gian" value={netRevenueChange} onChange={setNetRevenueChange} />
                     </View>
                     <NativeFinancialChart
-                        data={revenueChartData}
+                        data={filterRecentQuarters(revenueChartData)}
                         title=""
                         type={revenueChartData.type}
                     />
@@ -86,7 +111,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         <FilterButton label="Thời gian" value={profitChange} onChange={setProfitChange} />
                     </View>
                     <NativeFinancialChart
-                        data={profitChartData}
+                        data={filterRecentQuarters(profitChartData)}
                         title=""
                         type={profitChartData.type}
                     />
@@ -101,7 +126,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         <FilterButton label="Thời gian" value={expenseChange} onChange={setExpenseChange} />
                     </View>
                     <NativeFinancialChart
-                        data={expenseChartData}
+                        data={filterRecentQuarters(expenseChartData)}
                         title=""
                         type={expenseChartData.type}
                     />
@@ -116,7 +141,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         <FilterButton label="Thời gian" value={cashFlowChange} onChange={setCashFlowChange} />
                     </View>
                     <NativeFinancialChart
-                        data={cashFlowChartData}
+                        data={filterRecentQuarters(cashFlowChartData)}
                         title=""
                         type={cashFlowChartData.type}
                     />
@@ -131,7 +156,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         <FilterButton label="Thời gian" value={assetChange} onChange={setAssetChange} />
                     </View>
                     <NativeFinancialChart
-                        data={assetChartData}
+                        data={filterRecentQuarters(assetChartData)}
                         title=""
                         type={assetChartData.type}
                     />
@@ -146,7 +171,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         <FilterButton label="Thời gian" value={capitalChange} onChange={setCapitalChange} />
                     </View>
                     <NativeFinancialChart
-                        data={capitalChartData}
+                        data={filterRecentQuarters(capitalChartData)}
                         title=""
                         type={capitalChartData.type}
                     />
@@ -163,7 +188,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         </View>
                     </View>
                     <NativeFinancialChart
-                        data={debtRatioChartData}
+                        data={filterRecentQuarters(debtRatioChartData)}
                         title=""
                         type={debtRatioChartData.type}
                     />
@@ -180,7 +205,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         </View>
                     </View>
                     <NativeFinancialChart
-                        data={peValuationChartData}
+                        data={filterRecentQuarters(peValuationChartData)}
                         title=""
                         type={peValuationChartData.type}
                     />
@@ -197,7 +222,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         </View>
                     </View>
                     <NativeFinancialChart
-                        data={pbValuationChartData}
+                        data={filterRecentQuarters(pbValuationChartData)}
                         title=""
                         type={pbValuationChartData.type}
                     />

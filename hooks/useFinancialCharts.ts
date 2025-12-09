@@ -29,8 +29,8 @@ export const useFinancialCharts = (symbol: string) => {
     const categoriesBVH = ['Q1\'21', 'Q2\'21', 'Q3\'21', 'Q4\'21', 'Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24', 'Q2\'24', 'Q3\'24'];
     const categoriesAssets = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24', 'Q1\'25', 'Q2\'25'];
 
-    // SSI Categories from Image: Q1'22 ... Q1'25 (13 quarters)
-    const categoriesSSI = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24', 'Q1\'25'];
+    // SSI Categories from Image: Q1'22 ... Q3'25 (15 quarters)
+    const categoriesSSI = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24', 'Q1\'25', 'Q2\'25', 'Q3\'25'];
 
     // 1. Revenue Chart (SHB - Thu nhập lãi) OR SSI Profit Structure
     const revenueChartData = useMemo(() => {
@@ -43,31 +43,31 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Lãi từ các tài sản t...', // Pink
-                        data: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                        data: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
                         color: '#FF4081',
                         stack: 'total'
                     },
                     {
                         name: 'Lãi từ các khoản cho vay...', // Beige/Peach
-                        data: [0.5, 0.4, 0.3, 0.3, 0.4, 0.5, 0.5, 0.5, 0.5, 0.4, 0.5, 0.4, 0.8],
+                        data: [0.5, 0.4, 0.3, 0.3, 0.4, 0.5, 0.5, 0.5, 0.5, 0.4, 0.5, 0.4, 0.8, 0.8, 0.9],
                         color: '#FFCC80',
                         stack: 'total'
                     },
                     {
                         name: 'Lãi từ các khoản c...', // Green
-                        data: [0.6, 0.5, 0.4, 0.3, 0.3, 0.4, 0.4, 0.4, 0.5, 0.4, 0.5, 0.8, 1.0],
+                        data: [0.6, 0.5, 0.4, 0.3, 0.3, 0.4, 0.4, 0.4, 0.5, 0.4, 0.5, 0.8, 1.0, 1.1, 1.2],
                         color: '#00E676',
                         stack: 'total'
                     },
                     {
                         name: 'Lãi từ các khoản đ...', // Blue
-                        data: [0.2, 0.2, 0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.1, 0.2, 0.2],
+                        data: [0.2, 0.2, 0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2],
                         color: '#448AFF',
                         stack: 'total'
                     },
                     {
                         name: 'Lãi từ các tài chính ...', // Gold/Brown
-                        data: [0.6, 0.4, 0.5, 0.6, 0.6, 0.5, 0.8, 0.9, 0.8, 0.9, 1.0, 1.2, 2.0],
+                        data: [0.6, 0.4, 0.5, 0.6, 0.6, 0.5, 0.8, 0.9, 0.8, 0.9, 1.0, 1.2, 2.0, 2.1, 2.2],
                         color: '#C99C33',
                         stack: 'total'
                     },
@@ -108,19 +108,19 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Doanh thu hoạt đ...', // Blue
-                        data: [0, 0, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        data: [0, 0, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                         color: '#448AFF',
                         stack: 'total'
                     },
                     {
                         name: 'Lãi/lỗ từ công ty li...', // Green
-                        data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                         color: '#00E676',
                         stack: 'total'
                     },
                     {
                         name: 'Doanh thu hoạt đ...', // Gold
-                        data: [2.0, 1.6, 1.4, 1.4, 1.5, 1.7, 2.0, 2.1, 2.0, 2.3, 2.2, 3.0, 4.2],
+                        data: [2.0, 1.6, 1.4, 1.4, 1.5, 1.7, 2.0, 2.1, 2.0, 2.3, 2.2, 3.0, 4.2, 4.5, 4.8],
                         color: '#C99C33',
                         stack: 'total'
                     },
@@ -160,19 +160,19 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Chi phí hoạt động ...', // Gold (Bottom/Largest negative)
-                        data: [-1.2, -1.1, -1.0, -1.2, -0.9, -1.0, -1.1, -1.5, -1.1, -1.3, -1.1, -1.8, -2.4],
+                        data: [-1.2, -1.1, -1.0, -1.2, -0.9, -1.0, -1.1, -1.5, -1.1, -1.3, -1.1, -1.8, -2.4, -2.5, -2.6],
                         color: '#C99C33',
                         stack: 'total'
                     },
                     {
                         name: 'Chi phí quản lý côn...', // Cyan (Middle)
-                        data: [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.3, -0.2, -0.2, -0.2, -0.5, -0.6],
+                        data: [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.3, -0.2, -0.2, -0.2, -0.5, -0.6, -0.6, -0.7],
                         color: '#00E5FF',
                         stack: 'total'
                     },
                     {
                         name: 'Chi phí tài chính', // Blue (Top/Smallest negative)
-                        data: [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1],
+                        data: [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1],
                         color: '#448AFF',
                         stack: 'total'
                     },
@@ -200,12 +200,13 @@ export const useFinancialCharts = (symbol: string) => {
     const cashFlowChartData = useMemo(() => {
         if (symbol === 'SSI') {
             // "Lưu chuyển tiền tệ" for SSI (Image 4)
-            // Categories: Q1'21 to Q4'24 (16 quarters)
+            // Categories: Q1'21 to Q3'25 (19 quarters)
             const categoriesSSI_CashFlow = [
                 'Q1\'21', 'Q2\'21', 'Q3\'21', 'Q4\'21',
                 'Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22',
                 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23',
-                'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24'
+                'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24',
+                'Q1\'25', 'Q2\'25', 'Q3\'25'
             ];
 
             return {
@@ -215,25 +216,25 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Hoạt động đầu tư', // Cyan
-                        data: [0.5, 4.0, 5.5, 2.5, 4.0, 6.5, 2.2, 6.5, -1.0, 4.0, 12.0, -3.0, -3.0, 4.8, 4.8, 6.8],
+                        data: [0.5, 4.0, 5.5, 2.5, 4.0, 6.5, 2.2, 6.5, -1.0, 4.0, 12.0, -3.0, -3.0, 4.8, 4.8, 6.8, 5.0, 4.5, 6.0],
                         color: '#00E5FF',
                         type: 'column'
                     },
                     {
                         name: 'Hoạt động kinh doanh', // Purple (Deep Blue/Purple)
-                        data: [-1.0, -4.5, -6.0, -2.0, -4.5, -7.5, -2.0, -6.0, 3.0, -4.0, -12.5, 2.2, 2.2, -3.0, -3.0, -7.0],
+                        data: [-1.0, -4.5, -6.0, -2.0, -4.5, -7.5, -2.0, -6.0, 3.0, -4.0, -12.5, 2.2, 2.2, -3.0, -3.0, -7.0, -5.0, -4.0, -6.5],
                         color: '#651FFF',
                         type: 'column'
                     },
                     {
                         name: 'Hoạt động tài chính', // Green
-                        data: [0.2, 0.2, -0.5, -2.0, 0.5, -1.0, 0.5, 0.5, -3.5, 0.5, -0.5, -3.5, -3.5, -5.5, -5.5, -0.5],
+                        data: [0.2, 0.2, -0.5, -2.0, 0.5, -1.0, 0.5, 0.5, -3.5, 0.5, -0.5, -3.5, -3.5, -5.5, -5.5, -0.5, -1.0, -2.0, -1.5],
                         color: '#00E676',
                         type: 'column'
                     },
                     {
                         name: 'Tiền và tương đương cuối kì', // Orange Line
-                        data: [0.5, 0.4, 0.3, 0.8, 0.6, 0.5, 0.8, 1.2, 0.5, 0.6, 0.8, 0.5, 0.6, 2.0, 2.0, 0.8],
+                        data: [0.5, 0.4, 0.3, 0.8, 0.6, 0.5, 0.8, 1.2, 0.5, 0.6, 0.8, 0.5, 0.6, 2.0, 2.0, 0.8, 1.0, 1.2, 1.5],
                         color: '#FF6D00',
                         type: 'line'
                     }
@@ -288,25 +289,25 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Tiền và tương đương...', // Beige (Bottom)
-                        data: [2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3],
+                        data: [2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3],
                         color: '#FFCC80',
                         stack: 'total'
                     },
                     {
                         name: 'Các khoản cho vay...', // Pink (Lower Middle)
-                        data: [4, 4, 3, 3, 3, 3, 3, 4, 5, 4, 3, 3, 2],
+                        data: [4, 4, 3, 3, 3, 3, 3, 4, 5, 4, 3, 3, 2, 2, 2],
                         color: '#FF4081',
                         stack: 'total'
                     },
                     {
                         name: 'Tài sản tài chính...', // Blue (Dominant Middle)
-                        data: [45, 40, 42, 46, 48, 45, 50, 65, 62, 66, 60, 78, 94],
+                        data: [45, 40, 42, 46, 48, 45, 50, 65, 62, 66, 60, 78, 94, 96, 98],
                         color: '#448AFF',
                         stack: 'total'
                     },
                     {
                         name: 'Tài sản khác', // Green (Top)
-                        data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                        data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                         color: '#00E676',
                         stack: 'total'
                     },
@@ -338,19 +339,19 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Vốn và các q...', // Blue (Bottom)
-                        data: [15, 14, 22, 22, 23, 21, 22, 23, 24, 25, 27, 29, 31],
+                        data: [15, 14, 22, 22, 23, 21, 22, 23, 24, 25, 27, 29, 31, 32, 33],
                         color: '#448AFF',
                         stack: 'total'
                     },
                     {
                         name: 'Nợ dài hạn', // Cyan (Middle - tiny)
-                        data: [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+                        data: [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                         color: '#00E5FF',
                         stack: 'total'
                     },
                     {
                         name: 'Nợ ngắn hạn', // Gold (Top)
-                        data: [35, 30, 24, 30, 29, 28, 33, 45, 40, 45, 48, 62, 69],
+                        data: [35, 30, 24, 30, 29, 28, 33, 45, 40, 45, 48, 62, 69, 70, 72],
                         color: '#C99C33',
                         stack: 'total'
                     },
@@ -366,17 +367,16 @@ export const useFinancialCharts = (symbol: string) => {
             // "Hệ số nợ" for SSI (Image 7)
             // Wave pattern: High -> Low -> Mid -> Low -> High
             const wavePattern = [2.3, 1.8, 1.0, 1.3, 1.2, 1.5, 2.2, 1.8, 1.0, 1.2, 1.1, 1.4, 2.2, 1.8, 1.0, 1.3, 1.2, 1.5, 2.2, 1.8, 1.0, 1.3, 1.2, 1.5, 2.2, 2.2];
-            const wavePattern2 = wavePattern.map(v => v * 0.95); // Slightly lower
+            // Extend pattern for 2 more quarters (6 more points)
+            const extendedWave = [...wavePattern, 2.1, 2.0, 1.9, 1.8, 1.7, 1.6];
 
-            // Generate categories for 26 points, mapping to Q1'22 - Q1'24 (Monthly data resolution)
-            // We want to show EVERY quarter label: Q1'22, Q2'22, Q3'22, Q4'22, Q1'23...
-            // 26 points / ~3 points per quarter = ~8-9 quarters.
-            const categoriesSSI_Debt = new Array(26).fill('');
-            const quarters = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24'];
+            // Generate categories for 32 points (26 + 6), mapping to Q1'22 - Q3'25
+            const categoriesSSI_Debt = new Array(32).fill('');
+            const quarters = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24', 'Q1\'25', 'Q2\'25', 'Q3\'25'];
 
             quarters.forEach((q, index) => {
                 const dataIndex = index * 3;
-                if (dataIndex < 26) {
+                if (dataIndex < 32) {
                     categoriesSSI_Debt[dataIndex] = q;
                 }
             });
@@ -388,12 +388,12 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Nợ/Vốn chủ sở hữu', // Cyan
-                        data: [2.4, 2.0, 1.0, 1.3, 1.2, 1.8, 2.4, 1.8, 1.0, 1.3, 1.2, 1.8, 2.4, 1.8, 1.0, 1.3, 1.2, 1.8, 2.4, 1.8, 1.0, 1.3, 1.2, 1.8, 2.2, 2.2],
+                        data: [2.4, 2.0, 1.0, 1.3, 1.2, 1.8, 2.4, 1.8, 1.0, 1.3, 1.2, 1.8, 2.4, 1.8, 1.0, 1.3, 1.2, 1.8, 2.4, 1.8, 1.0, 1.3, 1.2, 1.8, 2.2, 2.2, 2.1, 2.0, 1.9, 1.8, 1.7, 1.6],
                         color: '#00E5FF',
                     },
                     {
                         name: 'Vay tài chính/Vốn chủ sở hữu', // Gold/Brown
-                        data: [2.2, 1.8, 0.9, 1.2, 1.1, 1.7, 2.2, 1.7, 0.9, 1.2, 1.1, 1.7, 2.2, 1.7, 0.9, 1.2, 1.1, 1.7, 2.2, 1.7, 0.9, 1.2, 1.1, 1.7, 2.1, 2.1],
+                        data: [2.2, 1.8, 0.9, 1.2, 1.1, 1.7, 2.2, 1.7, 0.9, 1.2, 1.1, 1.7, 2.2, 1.7, 0.9, 1.2, 1.1, 1.7, 2.2, 1.7, 0.9, 1.2, 1.1, 1.7, 2.1, 2.1, 2.0, 1.9, 1.8, 1.7, 1.6, 1.5],
                         color: '#C99C33',
                     },
                 ]
@@ -407,54 +407,19 @@ export const useFinancialCharts = (symbol: string) => {
         if (symbol === 'SSI') {
             // "Định giá P/E" for SSI (Image 8)
             // Wave pattern: 4 Peaks. Range ~7 to ~29.
-            // Low -> High -> Low -> High -> Low -> High -> Low -> High -> Mid
-            const peData = [
-                7, 6.5, 12, 28, 28, 25, 24, 15, 7, 6.5, // Peak 1 & Low
-                12, 28, 28, 25, 24, 18, 16, 7, 6.5, // Peak 2 & Low
-                12, 28, 28, 25, 22, 18, 16, 22, 21, 23, 17 // Peak 3 & End
-            ];
-            // Adjust length to match 26 points roughly or just use the data points we have.
-            // The previous chart had 26 points. Let's try to fit this pattern into ~26-30 points.
-            // Image shows ~4 peaks.
-            // Let's construct a 26-point array to match the categories we already have.
-            const peData26 = [
-                7, 6.8, 14, 29, 28, 25, 20, 8, 7, // Low -> Peak -> Low
-                10, 29, 28, 24, 19, 8, 7, // Low -> Peak -> Low
-                11, 29, 28, 23, 18, 7, // Low -> Peak -> Low
-                12, 29, 28, 22, 21, 23, 18 // Peak -> End
-            ].slice(0, 26);
-
-            // Actually the image shows 4 peaks.
-            // Peak 1: Q1'22 start (Low) -> Peak
-            // Peak 2
-            // Peak 3
-            // Peak 4
-            // Let's manually craft 26 points to look like the image.
             const dataPoints = [
                 7, 6.5, 10, 29, 28, 26, 24, 10, 7, // Wave 1
                 7, 12, 29, 28, 25, 20, 16, 7, // Wave 2
-                7, 14, 29, 28, 24, 19, 16, 22, 23 // Wave 3 & 4 start
+                7, 14, 29, 28, 24, 19, 16, 22, 23, // Wave 3 & 4 start
+                24, 25, 26, 27, 28, 29 // Extension
             ];
-            // The image ends at a mid-high point.
 
-            // Re-using the categories from Debt Ratio (Q1'22 - Q1'24)
-            const categoriesPE = [
-                'Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22',
-                'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23',
-                'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24',
-                'Q1\'25', 'Q2\'25', 'Q3\'25', 'Q4\'25',
-                'Q1\'26', 'Q2\'26', 'Q3\'26', 'Q4\'26',
-                'Q1\'27', 'Q2\'27', 'Q3\'27', 'Q4\'27',
-                'Q1\'28', 'Q2\'28'
-            ].slice(0, 26);
-
-            // Let's use the same sparse/full logic as Debt Ratio.
-            // User wants full labels.
-            const categoriesFull = new Array(26).fill('');
-            const quarters = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24'];
+            // Re-using the categories from Debt Ratio (Q1'22 - Q3'25)
+            const categoriesFull = new Array(32).fill('');
+            const quarters = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24', 'Q1\'25', 'Q2\'25', 'Q3\'25'];
             quarters.forEach((q, index) => {
                 const dataIndex = index * 3;
-                if (dataIndex < 26) {
+                if (dataIndex < 32) {
                     categoriesFull[dataIndex] = q;
                 }
             });
@@ -483,12 +448,12 @@ export const useFinancialCharts = (symbol: string) => {
             const pbData = [
                 1.5, 0.6, 0.6, 0.6, 1.2, 1.2, 1.3, 1.5, 1.4, 1.5,
                 0.6, 0.6, 0.6, 1.2, 1.2, 1.3, 1.3, 1.2, 1.9, 1.0,
-                0.9, 1.0, 1.5, 3.4, 1.9
+                0.9, 1.0, 1.5, 3.4, 1.9, 1.8, 1.7, 1.6, 1.5, 1.4, 1.3, 1.2
             ];
 
             // Match categories length
             const categoriesPB = new Array(pbData.length).fill('');
-            const quarters = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24'];
+            const quarters = ['Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22', 'Q1\'23', 'Q2\'23', 'Q3\'23', 'Q4\'23', 'Q1\'24', 'Q2\'24', 'Q3\'24', 'Q4\'24', 'Q1\'25', 'Q2\'25', 'Q3\'25'];
             quarters.forEach((q, index) => {
                 const dataIndex = index * 3;
                 if (dataIndex < pbData.length) {
