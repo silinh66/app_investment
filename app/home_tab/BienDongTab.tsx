@@ -2757,7 +2757,6 @@ export default function BienDongTab() {
       <Modal
         visible={showStockModal}
         transparent={true}
-        transparent={true}
         animationType="none"
         onRequestClose={() => setShowStockModal(false)}
       >
