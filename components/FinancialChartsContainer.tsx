@@ -7,6 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 interface FinancialChartsContainerProps {
     symbol: string;
+    industry?: string;
 }
 
 const FilterButton = ({ label, value, onChange }: { label: string, value: 'quarter' | 'year', onChange: (v: 'quarter' | 'year') => void }) => {
@@ -24,7 +25,7 @@ const FilterButton = ({ label, value, onChange }: { label: string, value: 'quart
     );
 };
 
-const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ symbol }) => {
+const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ symbol, industry }) => {
     const {
         loading,
         assetChartData,
@@ -48,10 +49,11 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
         debtRatioChartData,
         peValuationChartData,
         pbValuationChartData
-    } = useFinancialCharts(symbol);
+    } = useFinancialCharts(symbol, industry);
 
     const { theme } = useTheme();
     const isDark = theme.mode === 'dark';
+    const cardBackground = isDark ? '#202127' : '#F4F5F6';
 
     // Helper to keep only the last 8 quarters
     const filterRecentQuarters = (data: any, count: number = 8) => {
@@ -87,10 +89,10 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
     }
 
     return (
-        <View style={{ flex: 1, padding: 16 }}>
+        <View style={{ flex: 1, padding: 8 }}>
             {/* Revenue Chart */}
             {revenueChartData && (
-                <View style={styles.chartContainer}>
+                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{revenueChartData.title}</Text>
                         <FilterButton label="Thời gian" value={netRevenueChange} onChange={setNetRevenueChange} />
@@ -99,13 +101,14 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         data={filterRecentQuarters(revenueChartData)}
                         title=""
                         type={revenueChartData.type}
+                        unit="(Tỷ)"
                     />
                 </View>
             )}
 
             {/* Profit Chart */}
             {profitChartData && (
-                <View style={styles.chartContainer}>
+                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{profitChartData.title}</Text>
                         <FilterButton label="Thời gian" value={profitChange} onChange={setProfitChange} />
@@ -114,13 +117,14 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         data={filterRecentQuarters(profitChartData)}
                         title=""
                         type={profitChartData.type}
+                        unit="(Tỷ)"
                     />
                 </View>
             )}
 
             {/* Expense/Margin Chart */}
             {expenseChartData && (
-                <View style={styles.chartContainer}>
+                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{expenseChartData.title}</Text>
                         <FilterButton label="Thời gian" value={expenseChange} onChange={setExpenseChange} />
@@ -129,13 +133,14 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         data={filterRecentQuarters(expenseChartData)}
                         title=""
                         type={expenseChartData.type}
+                        unit="(Tỷ)"
                     />
                 </View>
             )}
 
             {/* Cash Flow Chart */}
             {cashFlowChartData && (
-                <View style={styles.chartContainer}>
+                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{cashFlowChartData.title}</Text>
                         <FilterButton label="Thời gian" value={cashFlowChange} onChange={setCashFlowChange} />
@@ -144,13 +149,14 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         data={filterRecentQuarters(cashFlowChartData)}
                         title=""
                         type={cashFlowChartData.type}
+                        unit="(Tỷ)"
                     />
                 </View>
             )}
 
             {/* Asset Chart */}
             {assetChartData && (
-                <View style={styles.chartContainer}>
+                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{assetChartData.title}</Text>
                         <FilterButton label="Thời gian" value={assetChange} onChange={setAssetChange} />
@@ -159,13 +165,14 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         data={filterRecentQuarters(assetChartData)}
                         title=""
                         type={assetChartData.type}
+                        unit="(Tỷ)"
                     />
                 </View>
             )}
 
             {/* Capital Chart */}
             {capitalChartData && (
-                <View style={styles.chartContainer}>
+                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{capitalChartData.title}</Text>
                         <FilterButton label="Thời gian" value={capitalChange} onChange={setCapitalChange} />
@@ -174,13 +181,14 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                         data={filterRecentQuarters(capitalChartData)}
                         title=""
                         type={capitalChartData.type}
+                        unit="(Tỷ)"
                     />
                 </View>
             )}
 
             {/* Debt Ratio Chart */}
             {debtRatioChartData && (
-                <View style={styles.chartContainer}>
+                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{debtRatioChartData.title}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#2C2D33' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}>
@@ -197,7 +205,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
 
             {/* P/E Valuation Chart */}
             {peValuationChartData && (
-                <View style={styles.chartContainer}>
+                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{peValuationChartData.title}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#2C2D33' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}>
@@ -214,7 +222,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
 
             {/* P/B Valuation Chart */}
             {pbValuationChartData && (
-                <View style={styles.chartContainer}>
+                <View style={[styles.chartContainer, { backgroundColor: cardBackground, padding: 12, borderRadius: 8 }]}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>{pbValuationChartData.title}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: isDark ? '#2C2D33' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}>

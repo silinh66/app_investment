@@ -14,6 +14,7 @@ interface NativeFinancialChartProps {
     title: string;
     type?: 'column' | 'line' | 'mixed' | 'stacked';
     height?: number;
+    unit?: string;
 }
 
 const LegendItem = ({ color, label }: { color: string, label: string }) => (
@@ -23,15 +24,17 @@ const LegendItem = ({ color, label }: { color: string, label: string }) => (
     </View>
 );
 
-const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title, type = 'column', height = 260 }) => {
+const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title, type = 'column', height = 260, unit }) => {
     const { theme } = useTheme();
     const isDark = theme.mode === 'dark';
 
     if (!data) return null;
 
     const chartConfig = {
-        backgroundGradientFrom: isDark ? "#1A1B20" : "#ffffff", // Darker background
-        backgroundGradientTo: isDark ? "#1A1B20" : "#ffffff",
+        backgroundGradientFrom: "transparent",
+        backgroundGradientFromOpacity: 0,
+        backgroundGradientTo: "transparent",
+        backgroundGradientToOpacity: 0,
         color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
         strokeWidth: 2,
         barPercentage: 0.3,
@@ -101,7 +104,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                         <View style={{ justifyContent: 'space-between', height: height - 40, paddingBottom: 20, paddingRight: 8 }}>
                             {[0, 1, 2, 3].map((i) => (
                                 <Text key={i} style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
-                                    {i === 0 ? '0' : `-${i * stepValue}T`}
+                                    {i === 0 ? '0' : `-${i * stepValue}`}
                                 </Text>
                             ))}
                         </View>
@@ -170,7 +173,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                         }}
                         hideLegend={true}
                         yAxisLabel=""
-                        yAxisSuffix="T"
+                        yAxisSuffix=""
                     />
                 </ScrollView>
             );
@@ -332,7 +335,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                     withDots={false}
                                     withShadow={false}
                                     yAxisLabel=""
-                                    yAxisSuffix="T"
+                                    yAxisSuffix=""
                                     segments={4} // Ensure 0 is in middle? No, 4 segments means 5 lines. -L, -L/2, 0, L/2, L
                                 />
                             </View>
@@ -363,7 +366,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                             showBarTops={false}
                             fromZero={true}
                             yAxisLabel=""
-                            yAxisSuffix="T"
+                            yAxisSuffix=""
                         />
 
                         {/* Overlay: Line Chart */}
@@ -465,7 +468,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                     showBarTops={false}
                     fromZero={true} // Important for negative values
                     yAxisLabel=""
-                    yAxisSuffix="T"
+                    yAxisSuffix=""
                 />
             </ScrollView>
         );
@@ -473,12 +476,20 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
 
     return (
         <View style={{
-            marginVertical: 12,
-            backgroundColor: isDark ? '#1A1B20' : '#fff',
-            borderRadius: 16,
-            padding: 16,
-            // No shadow for flat dark look
+            // Removed inner card styling to unify background with parent
+            marginTop: 12,
         }}>
+            {unit && (
+                <Text style={{
+                    fontSize: 10,
+                    color: isDark ? '#9CA3AF' : '#6B7280',
+                    marginBottom: 4,
+                    marginLeft: 4, // Align roughly with Y-axis
+                    fontWeight: '500'
+                }}>
+                    {unit}
+                </Text>
+            )}
             {renderChart()}
             {renderLegend()}
         </View>

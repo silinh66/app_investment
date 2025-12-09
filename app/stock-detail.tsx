@@ -670,6 +670,7 @@ export default function StockDetailScreen() {
 
   // Profile tab data states
   const [detailInfoSymbol, setDetailInfoSymbol] = useState<any>(null);
+
   const [listAnalysisReport, setListAnalysisReport] = useState<any[]>([]);
   const [newsData, setNewsData] = useState<any[]>([]);
   const [downloadReportMap, setDownloadReportMap] = useState<any[]>([]);
@@ -4217,7 +4218,16 @@ export default function StockDetailScreen() {
           </>
         )}
         {activeTab === "Biểu đồ tài chính" && (
-          <FinancialChartsContainer symbol={symbol} />
+          <FinancialChartsContainer
+            symbol={symbol}
+            industry={
+              detailInfoSymbol?.sector ||
+              detailInfoSymbol?.icb_industry_name ||
+              detailInfoSymbol?.subSectorCode ||
+              stockDetail?.sector ||
+              (stockDetail as any)?.industry
+            }
+          />
         )}
       </ScrollView>
       {/* Trading Detail Modal */}

@@ -14,7 +14,7 @@ export interface ChartData {
     type?: 'column' | 'line' | 'mixed' | 'stacked';
 }
 
-export const useFinancialCharts = (symbol: string) => {
+export const useFinancialCharts = (symbol: string, industry?: string) => {
     const [loading, setLoading] = useState(false);
 
     // Filter states
@@ -34,7 +34,7 @@ export const useFinancialCharts = (symbol: string) => {
 
     // 1. Revenue Chart (SHB - Thu nhập lãi) OR SSI Profit Structure
     const revenueChartData = useMemo(() => {
-        if (symbol === 'SSI') {
+        if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Cơ cấu lợi nhuận" for SSI (Image 1) - Mapped to first slot
             return {
                 categories: categoriesSSI,
@@ -43,31 +43,31 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Lãi từ các tài sản t...', // Pink
-                        data: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                        data: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
                         color: '#FF4081',
                         stack: 'total'
                     },
                     {
                         name: 'Lãi từ các khoản cho vay...', // Beige/Peach
-                        data: [0.5, 0.4, 0.3, 0.3, 0.4, 0.5, 0.5, 0.5, 0.5, 0.4, 0.5, 0.4, 0.8, 0.8, 0.9],
+                        data: [500, 400, 300, 300, 400, 500, 500, 500, 500, 400, 500, 400, 800, 800, 900],
                         color: '#FFCC80',
                         stack: 'total'
                     },
                     {
                         name: 'Lãi từ các khoản c...', // Green
-                        data: [0.6, 0.5, 0.4, 0.3, 0.3, 0.4, 0.4, 0.4, 0.5, 0.4, 0.5, 0.8, 1.0, 1.1, 1.2],
+                        data: [600, 500, 400, 300, 300, 400, 400, 400, 500, 400, 500, 800, 1000, 1100, 1200],
                         color: '#00E676',
                         stack: 'total'
                     },
                     {
                         name: 'Lãi từ các khoản đ...', // Blue
-                        data: [0.2, 0.2, 0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2],
+                        data: [200, 200, 100, 100, 100, 200, 200, 200, 200, 100, 100, 200, 200, 200, 200],
                         color: '#448AFF',
                         stack: 'total'
                     },
                     {
                         name: 'Lãi từ các tài chính ...', // Gold/Brown
-                        data: [0.6, 0.4, 0.5, 0.6, 0.6, 0.5, 0.8, 0.9, 0.8, 0.9, 1.0, 1.2, 2.0, 2.1, 2.2],
+                        data: [600, 400, 500, 600, 600, 500, 800, 900, 800, 900, 1000, 1200, 2000, 2100, 2200],
                         color: '#C99C33',
                         stack: 'total'
                     },
@@ -75,31 +75,12 @@ export const useFinancialCharts = (symbol: string) => {
             };
         }
 
-        // Default SHB
-        return {
-            categories: categoriesSHB,
-            title: 'Thu nhập lãi và các khoản thu nhập tương tự',
-            type: 'mixed' as const,
-            series: [
-                {
-                    name: 'Thu nhập lãi và các khoản...',
-                    data: [9, 10, 11, 12, 18, 13, 14, 15, 12, 10, 14, 11, 15],
-                    color: '#00E676',
-                    type: 'column'
-                },
-                {
-                    name: 'Tăng trưởng cùng kỳ',
-                    data: [10, 8, 9, 8, 9, 16, 12, 11, 12, 5, 4, 8, 15],
-                    color: '#76FF03',
-                    type: 'line'
-                }
-            ]
-        };
-    }, [netRevenueChange, symbol]);
+        return null; // Return null for non-supported industries for now
+    }, [netRevenueChange, symbol, industry]);
 
     // 2. Profit Chart (SHB - Lợi nhuận sau thuế) OR SSI Revenue Structure
     const profitChartData = useMemo(() => {
-        if (symbol === 'SSI') {
+        if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Cơ cấu doanh thu" for SSI (Image 2) - Mapped to second slot
             return {
                 categories: categoriesSSI,
@@ -108,7 +89,7 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Doanh thu hoạt đ...', // Blue
-                        data: [0, 0, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        data: [0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                         color: '#448AFF',
                         stack: 'total'
                     },
@@ -120,7 +101,7 @@ export const useFinancialCharts = (symbol: string) => {
                     },
                     {
                         name: 'Doanh thu hoạt đ...', // Gold
-                        data: [2.0, 1.6, 1.4, 1.4, 1.5, 1.7, 2.0, 2.1, 2.0, 2.3, 2.2, 3.0, 4.2, 4.5, 4.8],
+                        data: [2000, 1600, 1400, 1400, 1500, 1700, 2000, 2100, 2000, 2300, 2200, 3000, 4200, 4500, 4800],
                         color: '#C99C33',
                         stack: 'total'
                     },
@@ -128,30 +109,12 @@ export const useFinancialCharts = (symbol: string) => {
             };
         }
 
-        return {
-            categories: categoriesSHB,
-            title: 'Lợi nhuận sau thuế',
-            type: 'mixed' as const,
-            series: [
-                {
-                    name: 'Lợi nhuận sau thuế',
-                    data: [2.5, 2.0, 2.2, 0.5, 2.8, 1.8, 2.0, 0.6, 3.2, 2.2, 1.5, 3.5, 2.8],
-                    color: '#2979FF',
-                    type: 'column'
-                },
-                {
-                    name: 'Lợi nhuận sau thuế (YoY)',
-                    data: [2.0, 1.9, 2.0, 0.8, 1.2, 1.0, 1.2, 1.5, 1.5, 1.5, 0.8, 3.0, 1.8],
-                    color: '#76FF03',
-                    type: 'line'
-                }
-            ]
-        };
-    }, [profitChange, symbol]);
+        return null;
+    }, [profitChange, symbol, industry]);
 
     // 3. Expense Chart (SHB - Chi phí dự phòng)
     const expenseChartData = useMemo(() => {
-        if (symbol === 'SSI') {
+        if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Chi phí hoạt động" for SSI (Image 3)
             return {
                 categories: categoriesSSI,
@@ -160,19 +123,19 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Chi phí hoạt động ...', // Gold (Bottom/Largest negative)
-                        data: [-1.2, -1.1, -1.0, -1.2, -0.9, -1.0, -1.1, -1.5, -1.1, -1.3, -1.1, -1.8, -2.4, -2.5, -2.6],
+                        data: [-1200, -1100, -1000, -1200, -900, -1000, -1100, -1500, -1100, -1300, -1100, -1800, -2400, -2500, -2600],
                         color: '#C99C33',
                         stack: 'total'
                     },
                     {
                         name: 'Chi phí quản lý côn...', // Cyan (Middle)
-                        data: [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.3, -0.2, -0.2, -0.2, -0.5, -0.6, -0.6, -0.7],
+                        data: [-200, -200, -200, -200, -200, -200, -200, -300, -200, -200, -200, -500, -600, -600, -700],
                         color: '#00E5FF',
                         stack: 'total'
                     },
                     {
                         name: 'Chi phí tài chính', // Blue (Top/Smallest negative)
-                        data: [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1],
+                        data: [-100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100],
                         color: '#448AFF',
                         stack: 'total'
                     },
@@ -180,25 +143,12 @@ export const useFinancialCharts = (symbol: string) => {
             };
         }
 
-        // Default SHB
-        return {
-            categories: categoriesSHB,
-            title: 'Chi phí dự phòng rủi ro tín dụng',
-            type: 'column' as const,
-            series: [
-                {
-                    name: 'Chi phí dự phòng',
-                    data: [-0.5, -1.2, -0.8, -3.0, -1.5, -1.2, -0.8, -4.0, -0.5, -0.5, -0.8, -4.5, -1.5],
-                    color: '#FFAB00',
-                    type: 'column'
-                }
-            ]
-        };
-    }, [expenseChange, symbol]);
+        return null;
+    }, [expenseChange, symbol, industry]);
 
     // 4. Cash Flow Chart (BVH - Lưu chuyển tiền tệ)
     const cashFlowChartData = useMemo(() => {
-        if (symbol === 'SSI') {
+        if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Lưu chuyển tiền tệ" for SSI (Image 4)
             // Categories: Q1'21 to Q3'25 (19 quarters)
             const categoriesSSI_CashFlow = [
@@ -216,25 +166,25 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Hoạt động đầu tư', // Cyan
-                        data: [0.5, 4.0, 5.5, 2.5, 4.0, 6.5, 2.2, 6.5, -1.0, 4.0, 12.0, -3.0, -3.0, 4.8, 4.8, 6.8, 5.0, 4.5, 6.0],
+                        data: [500, 4000, 5500, 2500, 4000, 6500, 2200, 6500, -1000, 4000, 12000, -3000, -3000, 4800, 4800, 6800, 5000, 4500, 6000],
                         color: '#00E5FF',
                         type: 'column'
                     },
                     {
                         name: 'Hoạt động kinh doanh', // Purple (Deep Blue/Purple)
-                        data: [-1.0, -4.5, -6.0, -2.0, -4.5, -7.5, -2.0, -6.0, 3.0, -4.0, -12.5, 2.2, 2.2, -3.0, -3.0, -7.0, -5.0, -4.0, -6.5],
+                        data: [-1000, -4500, -6000, -2000, -4500, -7500, -2000, -6000, 3000, -4000, -12500, 2200, 2200, -3000, -3000, -7000, -5000, -4000, -6500],
                         color: '#651FFF',
                         type: 'column'
                     },
                     {
                         name: 'Hoạt động tài chính', // Green
-                        data: [0.2, 0.2, -0.5, -2.0, 0.5, -1.0, 0.5, 0.5, -3.5, 0.5, -0.5, -3.5, -3.5, -5.5, -5.5, -0.5, -1.0, -2.0, -1.5],
+                        data: [200, 200, -500, -2000, 500, -1000, 500, 500, -3500, 500, -500, -3500, -3500, -5500, -5500, -500, -1000, -2000, -1500],
                         color: '#00E676',
                         type: 'column'
                     },
                     {
                         name: 'Tiền và tương đương cuối kì', // Orange Line
-                        data: [0.5, 0.4, 0.3, 0.8, 0.6, 0.5, 0.8, 1.2, 0.5, 0.6, 0.8, 0.5, 0.6, 2.0, 2.0, 0.8, 1.0, 1.2, 1.5],
+                        data: [500, 400, 300, 800, 600, 500, 800, 1200, 500, 600, 800, 500, 600, 2000, 2000, 800, 1000, 1200, 1500],
                         color: '#FF6D00',
                         type: 'line'
                     }
@@ -242,45 +192,12 @@ export const useFinancialCharts = (symbol: string) => {
             };
         }
 
-        return {
-            categories: categoriesBVH,
-            title: 'Lưu chuyển tiền tệ',
-            type: 'mixed' as const,
-            series: [
-                {
-                    name: 'Hoạt động đầu tư',
-                    data: [2, 1, 3, -5, 2, -8, 2, -3, 1, 2, -2, 1, -1, 3, 2],
-                    color: '#29B6F6',
-                    type: 'column',
-                    stack: 'flow'
-                },
-                {
-                    name: 'Hoạt động kinh doanh',
-                    data: [-1, 2, -1, 1, -2, 3, -2, 2, -1, 1, -1, 2, -4, 1, -1],
-                    color: '#651FFF',
-                    type: 'column',
-                    stack: 'flow'
-                },
-                {
-                    name: 'Hoạt động tài chính',
-                    data: [1, -1, 2, 3, -1, 2, -3, 1, 2, -1, 2, -1, 1, 2, -1],
-                    color: '#00E676',
-                    type: 'column',
-                    stack: 'flow'
-                },
-                {
-                    name: 'Tiền và tương đương cuối kì',
-                    data: [3, 4, 5, 8, 5, 4, 3, 3, 6, 5, 6, 7, 5, 8, 10],
-                    color: '#FF6D00',
-                    type: 'line'
-                }
-            ]
-        };
-    }, [cashFlowChange, symbol]);
+        return null;
+    }, [cashFlowChange, symbol, industry]);
 
     // 5. Asset Chart (BVH - Cơ cấu tài sản)
     const assetChartData = useMemo(() => {
-        if (symbol === 'SSI') {
+        if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Tài sản" for SSI (Image 5)
             return {
                 categories: categoriesSSI,
@@ -289,25 +206,25 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Tiền và tương đương...', // Beige (Bottom)
-                        data: [2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3],
+                        data: [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 3000, 3000, 3000, 3000, 3000, 3000, 3000],
                         color: '#FFCC80',
                         stack: 'total'
                     },
                     {
                         name: 'Các khoản cho vay...', // Pink (Lower Middle)
-                        data: [4, 4, 3, 3, 3, 3, 3, 4, 5, 4, 3, 3, 2, 2, 2],
+                        data: [4000, 4000, 3000, 3000, 3000, 3000, 3000, 4000, 5000, 4000, 3000, 3000, 2000, 2000, 2000],
                         color: '#FF4081',
                         stack: 'total'
                     },
                     {
                         name: 'Tài sản tài chính...', // Blue (Dominant Middle)
-                        data: [45, 40, 42, 46, 48, 45, 50, 65, 62, 66, 60, 78, 94, 96, 98],
+                        data: [45000, 40000, 42000, 46000, 48000, 45000, 50000, 65000, 62000, 66000, 60000, 78000, 94000, 96000, 98000],
                         color: '#448AFF',
                         stack: 'total'
                     },
                     {
                         name: 'Tài sản khác', // Green (Top)
-                        data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                        data: [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
                         color: '#00E676',
                         stack: 'total'
                     },
@@ -315,22 +232,12 @@ export const useFinancialCharts = (symbol: string) => {
             };
         }
 
-        return {
-            categories: categoriesAssets,
-            title: 'Cơ cấu tài sản',
-            type: 'stacked' as const,
-            series: [
-                { name: "Tiền và tương đương tiền", data: [80, 70, 85, 80, 90, 95, 100, 110, 120, 125, 130, 135, 140, 145], color: "#FFAB00", stack: 'total' },
-                { name: "Đầu tư ngắn hạn", data: [60, 65, 60, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120], color: "#F50057", stack: 'total' },
-                { name: "Các khoản phải thu", data: [20, 25, 20, 25, 30, 35, 30, 35, 40, 45, 40, 45, 50, 55], color: "#00E676", stack: 'total' },
-                { name: "Hàng tồn kho", data: [10, 15, 10, 15, 20, 15, 20, 15, 20, 15, 20, 15, 20, 15], color: "#00B0FF", stack: 'total' },
-            ]
-        };
-    }, [assetChange, symbol]);
+        return null;
+    }, [assetChange, symbol, industry]);
 
     // 6. Capital Chart (Nguồn vốn)
     const capitalChartData = useMemo(() => {
-        if (symbol === 'SSI') {
+        if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Nguồn vốn" for SSI (Image 6)
             return {
                 categories: categoriesSSI,
@@ -339,19 +246,19 @@ export const useFinancialCharts = (symbol: string) => {
                 series: [
                     {
                         name: 'Vốn và các q...', // Blue (Bottom)
-                        data: [15, 14, 22, 22, 23, 21, 22, 23, 24, 25, 27, 29, 31, 32, 33],
+                        data: [15000, 14000, 22000, 22000, 23000, 21000, 22000, 23000, 24000, 25000, 27000, 29000, 31000, 32000, 33000],
                         color: '#448AFF',
                         stack: 'total'
                     },
                     {
                         name: 'Nợ dài hạn', // Cyan (Middle - tiny)
-                        data: [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                        data: [0, 0, 0, 0, 0, 1000, 0, 0, 0, 1000, 0, 0, 0, 0, 0],
                         color: '#00E5FF',
                         stack: 'total'
                     },
                     {
                         name: 'Nợ ngắn hạn', // Gold (Top)
-                        data: [35, 30, 24, 30, 29, 28, 33, 45, 40, 45, 48, 62, 69, 70, 72],
+                        data: [35000, 30000, 24000, 30000, 29000, 28000, 33000, 45000, 40000, 45000, 48000, 62000, 69000, 70000, 72000],
                         color: '#C99C33',
                         stack: 'total'
                     },
@@ -359,11 +266,11 @@ export const useFinancialCharts = (symbol: string) => {
             };
         }
         return null;
-    }, [capitalChange, symbol]);
+    }, [capitalChange, symbol, industry]);
 
     // 7. Debt Ratio Chart (Hệ số nợ)
     const debtRatioChartData = useMemo(() => {
-        if (symbol === 'SSI') {
+        if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Hệ số nợ" for SSI (Image 7)
             // Wave pattern: High -> Low -> Mid -> Low -> High
             const wavePattern = [2.3, 1.8, 1.0, 1.3, 1.2, 1.5, 2.2, 1.8, 1.0, 1.2, 1.1, 1.4, 2.2, 1.8, 1.0, 1.3, 1.2, 1.5, 2.2, 1.8, 1.0, 1.3, 1.2, 1.5, 2.2, 2.2];
@@ -400,11 +307,11 @@ export const useFinancialCharts = (symbol: string) => {
             };
         }
         return null;
-    }, [symbol]);
+    }, [symbol, industry]);
 
     // 8. P/E Valuation Chart (Định giá P/E)
     const peValuationChartData = useMemo(() => {
-        if (symbol === 'SSI') {
+        if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Định giá P/E" for SSI (Image 8)
             // Wave pattern: 4 Peaks. Range ~7 to ~29.
             const dataPoints = [
@@ -438,11 +345,11 @@ export const useFinancialCharts = (symbol: string) => {
             };
         }
         return null;
-    }, [symbol]);
+    }, [symbol, industry]);
 
     // 9. P/B Valuation Chart (Định giá P/B)
     const pbValuationChartData = useMemo(() => {
-        if (symbol === 'SSI') {
+        if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Định giá P/B" for SSI (Image 9)
             // Pattern: Start ~1.5 -> Drop ~0.6 -> Flat -> Rise -> Spike ~3.5 -> Drop
             const pbData = [
@@ -469,7 +376,7 @@ export const useFinancialCharts = (symbol: string) => {
             };
         }
         return null;
-    }, [symbol]);
+    }, [symbol, industry]);
 
 
 
