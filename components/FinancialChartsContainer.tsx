@@ -99,7 +99,10 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                             data={filterRecentQuarters(revenueChartData)}
                             title=""
                             type={revenueChartData.type}
-                            unit="(Tỷ)"
+                            unit={revenueChartData.unit ?? '(Tỷ)'}
+                            unitLeft={revenueChartData.unitLeft}
+                            unitRight={revenueChartData.unitRight}
+                            yAxisSuffixLeft={revenueChartData.yAxisSuffixLeft}
                         />
                     </View>
                 </View>
@@ -114,9 +117,10 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                             data={filterRecentQuarters(profitChartData)}
                             title=""
                             type={profitChartData.type}
-                            unit={profitChartData.unit}
+                            unit={profitChartData.unit ?? '(Tỷ)'}
                             unitLeft={profitChartData.unitLeft}
                             unitRight={profitChartData.unitRight}
+                            yAxisSuffixLeft={profitChartData.yAxisSuffixLeft}
                         />
                     </View>
                 </View>
@@ -131,7 +135,10 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                             data={filterRecentQuarters(expenseChartData)}
                             title=""
                             type={expenseChartData.type}
-                            unit="(Tỷ)"
+                            unit={expenseChartData.unit ?? '(Tỷ)'}
+                            unitLeft={expenseChartData.unitLeft}
+                            unitRight={expenseChartData.unitRight}
+                            yAxisSuffixLeft={expenseChartData.yAxisSuffixLeft}
                         />
                     </View>
                 </View>
@@ -146,7 +153,10 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                             data={filterRecentQuarters(cashFlowChartData)}
                             title=""
                             type={cashFlowChartData.type}
-                            unit="(Tỷ)"
+                            unit={cashFlowChartData.unit ?? '(Tỷ)'}
+                            unitLeft={cashFlowChartData.unitLeft}
+                            unitRight={cashFlowChartData.unitRight}
+                            yAxisSuffixLeft={cashFlowChartData.yAxisSuffixLeft}
                         />
                     </View>
                 </View>
@@ -161,7 +171,10 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                             data={filterRecentQuarters(assetChartData)}
                             title=""
                             type={assetChartData.type}
-                            unit="(Tỷ)"
+                            unit={assetChartData.unit ?? '(Tỷ)'}
+                            unitLeft={assetChartData.unitLeft}
+                            unitRight={assetChartData.unitRight}
+                            yAxisSuffixLeft={assetChartData.yAxisSuffixLeft}
                         />
                     </View>
                 </View>
@@ -176,7 +189,10 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                             data={filterRecentQuarters(capitalChartData)}
                             title=""
                             type={capitalChartData.type}
-                            unit="(Tỷ)"
+                            unit={capitalChartData.unit ?? '(Tỷ)'}
+                            unitLeft={capitalChartData.unitLeft}
+                            unitRight={capitalChartData.unitRight}
+                            yAxisSuffixLeft={capitalChartData.yAxisSuffixLeft}
                         />
                     </View>
                 </View>
@@ -191,6 +207,10 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                             data={filterRecentQuarters(debtRatioChartData)}
                             title=""
                             type={debtRatioChartData.type}
+                            unit={debtRatioChartData.unit}
+                            unitLeft={debtRatioChartData.unitLeft}
+                            unitRight={debtRatioChartData.unitRight}
+                            yAxisSuffixLeft={debtRatioChartData.yAxisSuffixLeft}
                         />
                     </View>
                 </View>
@@ -205,6 +225,10 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                             data={filterRecentQuarters(peValuationChartData)}
                             title=""
                             type={peValuationChartData.type}
+                            unit={peValuationChartData.unit}
+                            unitLeft={peValuationChartData.unitLeft}
+                            unitRight={peValuationChartData.unitRight}
+                            yAxisSuffixLeft={peValuationChartData.yAxisSuffixLeft}
                         />
                     </View>
                 </View>
@@ -219,6 +243,10 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
                             data={filterRecentQuarters(pbValuationChartData)}
                             title=""
                             type={pbValuationChartData.type}
+                            unit={pbValuationChartData.unit}
+                            unitLeft={pbValuationChartData.unitLeft}
+                            unitRight={pbValuationChartData.unitRight}
+                            yAxisSuffixLeft={pbValuationChartData.yAxisSuffixLeft}
                         />
                     </View>
                 </View>

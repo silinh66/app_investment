@@ -17,6 +17,7 @@ interface NativeFinancialChartProps {
     unit?: string;
     unitLeft?: string;
     unitRight?: string;
+    yAxisSuffixLeft?: string;
 }
 
 const LegendItem = ({ color, label }: { color: string, label: string }) => (
@@ -26,7 +27,7 @@ const LegendItem = ({ color, label }: { color: string, label: string }) => (
     </View>
 );
 
-const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title, type = 'column', height = 260, unit, unitLeft, unitRight }) => {
+const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title, type = 'column', height = 260, unit, unitLeft, unitRight, yAxisSuffixLeft }) => {
     const { theme } = useTheme();
     const isDark = theme.mode === 'dark';
 
@@ -39,7 +40,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
         backgroundGradientToOpacity: 0,
         color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
         strokeWidth: 2,
-        barPercentage: 0.3,
+        barPercentage: 0.6,
         useShadowColorFromDataset: false,
         decimalPlaces: 0,
         labelColor: (opacity = 1) => isDark ? `rgba(156, 163, 175, ${opacity})` : `rgba(107, 114, 128, ${opacity})`,
@@ -110,7 +111,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                 return (
                     <View style={{ flexDirection: 'row' }}>
                         {/* Custom Y-Axis Labels (Left) */}
-                        <View style={{ justifyContent: 'space-between', height: height - 40, paddingBottom: 20, paddingRight: 8 }}>
+                        <View style={{ justifyContent: 'space-between', height: height - 40, paddingBottom: 20, paddingRight: 2 }}>
                             {[0, 1, 2, 3].map((i) => (
                                 <Text key={i} style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
                                     {i === 0 ? '0' : `-${i * stepValue}`}
@@ -133,7 +134,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                         height={height - 20}
                                         chartConfig={{
                                             ...chartConfig,
-                                            barPercentage: 0.35, // Thinner bars
+                                            barPercentage: 0.6, // Thinner bars
                                             propsForBackgroundLines: {
                                                 strokeDasharray: "4",
                                                 stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
@@ -178,10 +179,10 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                         height={height}
                         chartConfig={{
                             ...chartConfig,
-                            barPercentage: 0.35, // Thinner bars
+                            barPercentage: 0.6, // Thinner bars
                         }}
                         hideLegend={true}
-                        style={{ paddingRight: 0 }}
+                        style={{ paddingRight: 0, paddingLeft: 0 }}
                         yAxisLabel=""
                         yAxisSuffix=""
                     />
@@ -268,13 +269,13 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                     height={halfHeight + fixPadding}
                                     chartConfig={{
                                         ...chartConfig,
-                                        barPercentage: 0.35, // Thinner bars
+                                        barPercentage: 0.6, // Thinner bars
                                         propsForBackgroundLines: { strokeWidth: 0 },
                                         color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
                                         labelColor: () => 'transparent',
                                     }}
                                     hideLegend={true}
-                                    style={{ paddingRight: 0 }}
+                                    style={{ paddingRight: 0, paddingLeft: 0 }}
                                     withHorizontalLabels={false}
                                     withVerticalLabels={false}
                                 />
@@ -293,13 +294,13 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                     height={halfHeight + fixPadding}
                                     chartConfig={{
                                         ...chartConfig,
-                                        barPercentage: 0.35, // Thinner bars
+                                        barPercentage: 0.6, // Thinner bars
                                         propsForBackgroundLines: { strokeWidth: 0 },
                                         color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
                                         labelColor: () => 'transparent',
                                     }}
                                     hideLegend={true}
-                                    style={{ paddingRight: 0 }}
+                                    style={{ paddingRight: 0, paddingLeft: 0 }}
                                     withHorizontalLabels={false}
                                     withVerticalLabels={false}
                                 />
@@ -354,7 +355,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                 fillShadowGradientTo: columnSeries[0]?.color ?? '#00E676',
                 fillShadowGradientFromOpacity: 1,
                 fillShadowGradientToOpacity: 1,
-                barPercentage: 0.5, // Thicker bars like sample
+                barPercentage: 0.7, // Thicker bars like sample
             };
 
             return (
@@ -377,7 +378,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                             style={{ paddingRight: unitRight ? 40 : 0 }} // Add padding for right axis if needed
                             fromZero={true}
                             yAxisLabel=""
-                            yAxisSuffix=""
+                            yAxisSuffix={yAxisSuffixLeft || ""}
                         />
 
                         {/* Overlay: Line Chart */}
@@ -488,7 +489,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                         fromZero={true}
                         yAxisLabel=""
                         yAxisSuffix="%"
-                        style={{ paddingRight: 0 }}
+                        style={{ paddingRight: 0, paddingLeft: 0 }}
                     />
                 </ScrollView>
             );
@@ -507,12 +508,19 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                     }}
                     width={Math.max(availableWidth, data.categories.length * 30)}
                     height={height}
-                    chartConfig={chartConfig}
+                    chartConfig={{
+                        ...chartConfig,
+                        fillShadowGradientFrom: data.series[0]?.color ?? '#00E676',
+                        fillShadowGradientTo: data.series[0]?.color ?? '#00E676',
+                        fillShadowGradientFromOpacity: 1,
+                        fillShadowGradientToOpacity: 1,
+                        barPercentage: 0.7,
+                    }}
                     showBarTops={false}
-                    style={{ paddingRight: 0 }}
+                    style={{ paddingRight: 0, paddingLeft: 0 }}
                     fromZero={true} // Important for negative values
                     yAxisLabel=""
-                    yAxisSuffix=""
+                    yAxisSuffix={yAxisSuffixLeft || ""}
                 />
             </ScrollView>
         );
@@ -522,7 +530,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
         <View style={{
             marginTop: 12,
         }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 4 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 0 }}>
                 {(unit || unitLeft) && (
                     <Text style={{
                         fontSize: 10,

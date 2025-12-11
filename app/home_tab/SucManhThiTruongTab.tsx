@@ -199,7 +199,7 @@ const SucManhThiTruongTab = () => {
                 borderWidth: 1,
                 borderColor: theme.colors.text
             }]} onPress={onPress}>
-                <View style={[styles.barFill, { width: `${value}%`, backgroundColor: color, height: '100%', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }]}>
+                <View style={[styles.barFill, { width: `${value}%`, backgroundColor: color, height: '100%', justifyContent: 'center', alignItems: 'center' }]}>
                     <Text style={{ color: theme.colors.text, fontSize: value / 100 * 40 }}>{value.toFixed(1)}%</Text>
                 </View>
                 {/* <View style={styles.quickAccessHeader}>
