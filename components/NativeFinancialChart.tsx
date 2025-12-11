@@ -21,7 +21,7 @@ interface NativeFinancialChartProps {
 }
 
 const LegendItem = ({ color, label }: { color: string, label: string }) => (
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16, marginBottom: 8 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color, marginRight: 6 }} />
         <Text style={{ fontSize: 10, color: '#9CA3AF', fontWeight: '500' }}>{label}</Text>
     </View>
@@ -40,7 +40,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
         backgroundGradientToOpacity: 0,
         color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
         strokeWidth: 2,
-        barPercentage: 0.6,
+        barPercentage: 0.8,
         useShadowColorFromDataset: false,
         decimalPlaces: 0,
         labelColor: (opacity = 1) => isDark ? `rgba(156, 163, 175, ${opacity})` : `rgba(107, 114, 128, ${opacity})`,
@@ -61,7 +61,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
 
     const renderLegend = () => {
         return (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 16, marginLeft: 18 }}>
+            <View style={{ flexDirection: 'column', marginTop: 16, marginLeft: 18 }}>
                 {data.series.map((s: any, index: number) => (
                     <LegendItem key={index} color={s.color} label={s.name} />
                 ))}
@@ -81,7 +81,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
 
         // Common Width Adjustment to reduce right padding
         // Changed from -80 to -40 to push content closer to edges
-        const availableWidth = screenWidth - 32;
+        const availableWidth = (screenWidth - 32) * 0.90;
 
         // Stacked Bar Chart (Assets, Revenue Structure, etc.)
         // Stacked Bar Chart (Assets, Revenue Structure, etc.)
@@ -141,7 +141,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                         height={graphHeight}
                                         chartConfig={{
                                             ...chartConfig,
-                                            barPercentage: 0.6,
+                                            barPercentage: 0.7,
                                             propsForBackgroundLines: {
                                                 strokeDasharray: "4",
                                                 stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
@@ -174,7 +174,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                         segments={yAxisSteps}
                                         chartConfig={{
                                             ...chartConfig,
-                                            barPercentage: 0.6,
+                                            barPercentage: 0.7,
                                             color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
                                             labelColor: () => 'transparent', // Hide internal labels
                                         }}
@@ -468,7 +468,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                     fillShadowGradientTo: data.series[0]?.color ?? '#00E676',
                                     fillShadowGradientFromOpacity: 1,
                                     fillShadowGradientToOpacity: 1,
-                                    barPercentage: 0.7,
+                                    barPercentage: 0.8,
                                     color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
                                     labelColor: () => 'transparent',
                                 }}
