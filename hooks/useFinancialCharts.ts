@@ -53,13 +53,13 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesTCB,
                 title: 'Thu nhập lãi và các khoản phải thu tương tự',
                 type: 'mixed' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 unitLeft: '', // No Unit text
                 yAxisSuffixLeft: 'T', // 24T, 16T...
                 unitRight: '%',
                 series: [
                     {
-                        name: 'Thu nhập lãi và các khoản...',
+                        name: 'Thu nhập lãi và các khoản phải thu tương tự',
                         data: [10.5, 10.2, 11.0, 11.8, 12.5, 12.8, 13.5, 13.5, 14.2, 14.2, 14.8, 14.8, 14.6, 15.5, 16.0, 17.5], // Green Column growing to ~17.5T (near 24T mark? No 24T is top axis)
                         color: '#00E676', // Green
                         type: 'column'
@@ -80,34 +80,34 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesSSI,
                 title: 'Cơ cấu lợi nhuận',
                 type: 'stacked' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 series: [
                     {
-                        name: 'Lãi từ các tài sản t...', // Pink
+                        name: 'Lãi từ các tài sản tài chính (FVTPL)', // Pink
                         data: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
                         color: '#FF4081',
                         stack: 'total'
                     },
                     {
-                        name: 'Lãi từ các khoản cho vay...', // Beige/Peach
+                        name: 'Lãi từ các khoản cho vay và phải thu', // Beige/Peach
                         data: [0.5, 0.4, 0.3, 0.3, 0.4, 0.5, 0.5, 0.5, 0.5, 0.4, 0.5, 0.4, 0.8, 0.8, 0.9],
                         color: '#ec8751',
                         stack: 'total'
                     },
                     {
-                        name: 'Lãi từ các khoản c...', // Green
+                        name: 'Lãi từ các khoản đầu tư sẵn sàng để bán (AFS)', // Green
                         data: [0.6, 0.5, 0.4, 0.3, 0.3, 0.4, 0.4, 0.4, 0.5, 0.4, 0.5, 0.8, 1.0, 1.1, 1.2],
                         color: '#a6c852',
                         stack: 'total'
                     },
                     {
-                        name: 'Lãi từ các khoản đ...', // Blue
+                        name: 'Lãi từ các khoản đầu tư khác', // Blue
                         data: [0.2, 0.2, 0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2],
                         color: '#2865C4',
                         stack: 'total'
                     },
                     {
-                        name: 'Lãi từ các tài chính ...', // Gold/Brown
+                        name: 'Lãi từ các khoản đầu tư nắm giữ đến ngày đáo hạn (HTM)', // Gold/Brown
                         data: [0.6, 0.4, 0.5, 0.6, 0.6, 0.5, 0.8, 0.9, 0.8, 0.9, 1.0, 1.2, 2.0, 2.1, 2.2],
                         color: '#f6c554',
                         stack: 'total'
@@ -120,7 +120,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesBVH_Profit, // Reuse same categories
                 title: 'Doanh thu phí bảo hiểm',
                 type: 'mixed' as const,
-                unitLeft: '(Nghìn tỷ)',
+                unitLeft: 'Nghìn tỷ',
                 unitRight: '%',
                 series: [
                     {
@@ -149,7 +149,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
             categories: categoriesOther,
             title: 'Doanh thu thuần',
             type: 'mixed' as const,
-            unit: '(Nghìn tỷ)',
+            unit: 'Nghìn tỷ',
             unitLeft: '', // No Unit text
             yAxisSuffixLeft: 'T', // 60T max
             unitRight: '%',
@@ -181,7 +181,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesTCB, // Reuse TCB categories
                 title: 'Lợi nhuận sau thuế',
                 type: 'mixed' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 unitLeft: '', // No Unit text
                 yAxisSuffixLeft: 'T', // 7.5T, 5T...
                 unitRight: '%',
@@ -208,7 +208,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesBVH_Profit,
                 title: 'Lợi nhuận sau thuế của doanh nghiệp',
                 type: 'mixed' as const,
-                unitLeft: '(Nghìn tỷ)',
+                unitLeft: 'Nghìn tỷ',
                 unitRight: '%',
                 series: [
                     {
@@ -233,22 +233,22 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesSSI,
                 title: 'Cơ cấu doanh thu',
                 type: 'stacked' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 series: [
                     {
-                        name: 'Doanh thu hoạt đ...', // Blue
+                        name: 'Doanh thu hoạt động', // Blue
                         data: [0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                         color: '#2865C4',
                         stack: 'total'
                     },
                     {
-                        name: 'Lãi/lỗ từ công ty li...', // Green
+                        name: 'Lãi/lỗ từ công ty liên doanh, liên kết', // Green
                         data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                         color: '#A6C852',
                         stack: 'total'
                     },
                     {
-                        name: 'Doanh thu hoạt đ...', // Gold
+                        name: 'Doanh thu hoạt động', // Gold
                         data: [2.0, 1.6, 1.4, 1.4, 1.5, 1.7, 2.0, 2.1, 2.0, 2.3, 2.2, 3.0, 4.2, 4.5, 4.8],
                         color: '#F6C554',
                         stack: 'total'
@@ -267,7 +267,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
             categories: categoriesOther,
             title: 'Lợi nhuận sau thuế',
             type: 'mixed' as const,
-            unit: '(Nghìn tỷ)',
+            unit: 'Nghìn tỷ',
             unitLeft: '', // No Unit text
             yAxisSuffixLeft: 'T', // 10T max
             unitRight: '%',
@@ -298,7 +298,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesTCB,
                 title: 'Chi phí dự phòng rủi ro tín dụng',
                 type: 'column' as const, // Simple column chart
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 unitLeft: '',
                 yAxisSuffixLeft: 'T',
                 series: [
@@ -317,16 +317,16 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesSSI,
                 title: 'Chi phí hoạt động',
                 type: 'stacked' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 series: [
                     {
-                        name: 'Chi phí hoạt động ...', // Gold (Bottom/Largest negative)
+                        name: 'Chi phí hoạt động', // Gold (Bottom/Largest negative)
                         data: [-1.2, -1.1, -1.0, -1.2, -0.9, -1.0, -1.1, -1.5, -1.1, -1.3, -1.1, -1.8, -2.4, -2.5, -2.6],
                         color: '#F6C554',
                         stack: 'total'
                     },
                     {
-                        name: 'Chi phí quản lý côn...', // Cyan (Middle)
+                        name: 'Chi phí quản lý doanh nghiệp', // Cyan (Middle)
                         data: [-0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.3, -0.2, -0.2, -0.2, -0.5, -0.6, -0.6, -0.7],
                         color: '#00E5FF',
                         stack: 'total'
@@ -379,7 +379,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesTCB,
                 title: 'Lưu chuyển tiền tệ',
                 type: 'mixed' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 series: [
                     {
                         name: 'Hoạt động đầu tư', // Cyan
@@ -414,7 +414,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesBVH_Profit,
                 title: 'Lưu chuyển tiền tệ',
                 type: 'mixed' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 series: [
                     {
                         name: 'Hoạt động đầu tư', // Cyan
@@ -495,7 +495,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
             categories: categoriesOther,
             title: 'Lưu chuyển tiền tệ',
             type: 'mixed' as const,
-            unit: '(Nghìn tỷ)',
+            unit: 'Nghìn tỷ',
             series: [
                 {
                     name: 'Hoạt động đầu tư', // Cyan
@@ -532,7 +532,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesTCB,
                 title: 'Cơ cấu tài sản',
                 type: 'stacked' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 series: [
                     {
                         name: 'Cho vay khách hàng', // Green (Main Asset for Bank)
@@ -562,7 +562,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesBVH_Profit, // Reuse Q1'22 - Q3'25
                 title: 'Đầu tư tài chính',
                 type: 'mixed' as const,
-                unit: '(Nghìn tỷ)', // Explicitly empty to override default (Tỷ)
+                unit: 'Nghìn tỷ', // Explicitly empty to override default (Tỷ)
                 unitLeft: '', // No Unit on Top Left as per image
                 yAxisSuffixLeft: 'T', // Axis labels: 150T, 100T...
                 unitRight: '%',
@@ -591,22 +591,22 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesSSI,
                 title: 'Tài sản',
                 type: 'stacked' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 series: [
                     {
-                        name: 'Tiền và tương đương...', // Beige (Bottom)
+                        name: 'Tiền và các khoản tương đương tiền', // Beige (Bottom)
                         data: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0],
                         color: '#ec8751',
                         stack: 'total'
                     },
                     {
-                        name: 'Các khoản cho vay...', // Pink (Lower Middle)
+                        name: 'Các khoản cho vay và phải thu', // Pink (Lower Middle)
                         data: [4.0, 4.0, 3.0, 3.0, 3.0, 3.0, 3.0, 4.0, 5.0, 4.0, 3.0, 3.0, 2.0, 2.0, 2.0],
                         color: '#FF4081',
                         stack: 'total'
                     },
                     {
-                        name: 'Tài sản tài chính...', // Blue (Dominant Middle)
+                        name: 'Tài sản tài chính ghi nhận thông qua lãi/lỗ (FVTPL)', // Blue (Dominant Middle)
                         data: [45.0, 40.0, 42.0, 46.0, 48.0, 45.0, 50.0, 65.0, 62.0, 66.0, 60.0, 78.0, 94.0, 96.0, 98.0],
                         color: '#2865C4',
                         stack: 'total'
@@ -628,22 +628,22 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
             categories: categoriesOther,
             title: 'Cơ cấu tài sản',
             type: 'stacked' as const,
-            unit: '(Nghìn tỷ)', // Updated unit
+            unit: 'Nghìn tỷ', // Updated unit
             series: [
                 {
-                    name: 'Tiền và tương đương...', // Beige (Bottom)
+                    name: 'Tiền và các khoản tương đương tiền', // Beige (Bottom)
                     data: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5],
                     color: '#ec8751',
                     stack: 'total'
                 },
                 {
-                    name: 'Các khoản cho vay...', // Pink (Lower Middle)
+                    name: 'Các khoản cho vay và phải thu', // Pink (Lower Middle)
                     data: [2.0, 2.0, 1.5, 1.5, 1.5, 1.5, 1.5, 2.0, 2.5, 2.0, 1.5, 1.5, 1.0, 1.0],
                     color: '#FF4081',
                     stack: 'total'
                 },
                 {
-                    name: 'Tài sản tài chính...', // Blue (Dominant Middle)
+                    name: 'Tài sản tài chính (FVTPL, AFS, HTM)', // Blue (Dominant Middle)
                     data: [20.0, 18.0, 19.0, 21.0, 22.0, 21.0, 23.0, 30.0, 29.0, 31.0, 28.0, 36.0, 43.0, 44.0],
                     color: '#2865C4',
                     stack: 'total'
@@ -665,7 +665,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesTCB,
                 title: 'Nguồn vốn',
                 type: 'stacked' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 series: [
                     {
                         name: 'Vốn chủ sở hữu', // Blue
@@ -694,7 +694,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 categories: categoriesBVH_Profit,
                 title: 'Nguồn vốn',
                 type: 'stacked' as const,
-                unit: '(Nghìn tỷ)',
+                unit: 'Nghìn tỷ',
                 series: [
                     {
                         name: 'Vốn và các quỹ', // Blue
@@ -726,7 +726,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
                 type: 'stacked' as const,
                 series: [
                     {
-                        name: 'Vốn và các q...', // Blue (Bottom)
+                        name: 'Vốn và các quỹ', // Blue (Bottom)
                         data: [15.0, 14.0, 22.0, 22.0, 23.0, 21.0, 22.0, 23.0, 24.0, 25.0, 27.0, 29.0, 31.0, 32.0, 33.0],
                         color: '#2865C4',
                         stack: 'total'
@@ -754,10 +754,10 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
             categories: categoriesOther,
             title: 'Nguồn vốn',
             type: 'stacked' as const,
-            unit: '(Nghìn tỷ)',
+            unit: 'Nghìn tỷ',
             series: [
                 {
-                    name: 'Vốn và các q...', // Blue (Bottom)
+                    name: 'Vốn và các quỹ', // Blue (Bottom)
                     data: [7.0, 6.5, 10.0, 10.0, 10.5, 9.5, 10.0, 10.5, 11.0, 11.5, 12.5, 13.5, 14.5, 15.0],
                     color: '#448AFF',
                     stack: 'total'

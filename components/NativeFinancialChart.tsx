@@ -61,7 +61,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
 
     const renderLegend = () => {
         return (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 16, paddingHorizontal: 4 }}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 16, marginLeft: 18 }}>
                 {data.series.map((s: any, index: number) => (
                     <LegendItem key={index} color={s.color} label={s.name} />
                 ))}
@@ -111,7 +111,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                 return (
                     <View style={{ flexDirection: 'row' }}>
                         {/* Custom Y-Axis Labels (Left) */}
-                        <View style={{ justifyContent: 'space-between', height: height - 40, paddingBottom: 20, paddingRight: 2 }}>
+                        <View style={{ justifyContent: 'space-between', height: height - 40, paddingBottom: 20, paddingRight: 2, marginLeft: 4 }}>
                             {[0, 1, 2, 3].map((i) => (
                                 <Text key={i} style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
                                     {i === 0 ? '0' : `-${i * stepValue}`}
@@ -163,11 +163,12 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                             </View>
                         </ScrollView>
                     </View>
+
                 );
             }
 
             return (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 4 }}>
                     <StackedBarChart
                         data={{
                             labels: processedLabels,
@@ -254,7 +255,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                 const fixPadding = 30;
 
                 return (
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 4 }}>
                         <View style={{ height: height, width: chartWidth }}>
                             {/* Top Half: Positive Stack */}
                             <View style={{ height: halfHeight, width: chartWidth, overflow: 'hidden' }}>
@@ -359,7 +360,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
             };
 
             return (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 4 }}>
                     <View>
                         {/* Base Chart - Columns */}
                         <BarChart
@@ -455,7 +456,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
         // Line Chart (Debt Ratio)
         if (type === 'line') {
             return (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 4 }}>
                     <LineChart
                         data={{
                             labels: processedLabels,
@@ -497,7 +498,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
 
         // Default: Column Chart (for Expenses - Negative)
         return (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 4 }}>
                 <BarChart
                     data={{
                         labels: processedLabels,
@@ -536,7 +537,8 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                         fontSize: 10,
                         color: isDark ? '#9CA3AF' : '#6B7280',
                         marginBottom: 4,
-                        fontWeight: '500'
+                        fontWeight: '500',
+                        marginLeft: 8 // Adjust this value to change distance from left edge
                     }}>
                         {unit || unitLeft}
                     </Text>
@@ -559,3 +561,4 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
 };
 
 export default NativeFinancialChart;
+

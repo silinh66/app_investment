@@ -94,7 +94,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
             {revenueChartData && (
                 <View style={styles.chartContainer}>
                     <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{revenueChartData.title}</Text>
-                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                    <View style={{ backgroundColor: cardBackground, paddingVertical: 12, paddingHorizontal: 0, borderRadius: 8 }}>
                         <NativeFinancialChart
                             data={filterRecentQuarters(revenueChartData)}
                             title=""
@@ -112,7 +112,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
             {profitChartData && (
                 <View style={styles.chartContainer}>
                     <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{profitChartData.title}</Text>
-                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                    <View style={{ backgroundColor: cardBackground, paddingVertical: 12, paddingHorizontal: 0, borderRadius: 8 }}>
                         <NativeFinancialChart
                             data={filterRecentQuarters(profitChartData)}
                             title=""
@@ -130,7 +130,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
             {expenseChartData && (
                 <View style={styles.chartContainer}>
                     <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{expenseChartData.title}</Text>
-                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                    <View style={{ backgroundColor: cardBackground, paddingVertical: 12, paddingHorizontal: 0, borderRadius: 8 }}>
                         <NativeFinancialChart
                             data={filterRecentQuarters(expenseChartData)}
                             title=""
@@ -148,7 +148,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
             {cashFlowChartData && (
                 <View style={styles.chartContainer}>
                     <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{cashFlowChartData.title}</Text>
-                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                    <View style={{ backgroundColor: cardBackground, paddingVertical: 12, paddingHorizontal: 0, borderRadius: 8 }}>
                         <NativeFinancialChart
                             data={filterRecentQuarters(cashFlowChartData)}
                             title=""
@@ -166,7 +166,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
             {assetChartData && (
                 <View style={styles.chartContainer}>
                     <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{assetChartData.title}</Text>
-                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                    <View style={{ backgroundColor: cardBackground, paddingVertical: 12, paddingHorizontal: 0, borderRadius: 8 }}>
                         <NativeFinancialChart
                             data={filterRecentQuarters(assetChartData)}
                             title=""
@@ -184,7 +184,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
             {capitalChartData && (
                 <View style={styles.chartContainer}>
                     <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{capitalChartData.title}</Text>
-                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                    <View style={{ backgroundColor: cardBackground, paddingVertical: 12, paddingHorizontal: 0, borderRadius: 8 }}>
                         <NativeFinancialChart
                             data={filterRecentQuarters(capitalChartData)}
                             title=""
@@ -202,7 +202,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
             {debtRatioChartData && (
                 <View style={styles.chartContainer}>
                     <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{debtRatioChartData.title}</Text>
-                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                    <View style={{ backgroundColor: cardBackground, paddingVertical: 12, paddingHorizontal: 0, borderRadius: 8 }}>
                         <NativeFinancialChart
                             data={filterRecentQuarters(debtRatioChartData)}
                             title=""
@@ -220,7 +220,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
             {peValuationChartData && (
                 <View style={styles.chartContainer}>
                     <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{peValuationChartData.title}</Text>
-                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                    <View style={{ backgroundColor: cardBackground, paddingVertical: 12, paddingHorizontal: 0, borderRadius: 8 }}>
                         <NativeFinancialChart
                             data={filterRecentQuarters(peValuationChartData)}
                             title=""
@@ -238,7 +238,7 @@ const FinancialChartsContainer: React.FC<FinancialChartsContainerProps> = ({ sym
             {pbValuationChartData && (
                 <View style={styles.chartContainer}>
                     <Text style={[styles.title, { color: isDark ? '#fff' : '#000', marginBottom: 12 }]}>{pbValuationChartData.title}</Text>
-                    <View style={{ backgroundColor: cardBackground, padding: 12, borderRadius: 8 }}>
+                    <View style={{ backgroundColor: cardBackground, paddingVertical: 12, paddingHorizontal: 0, borderRadius: 8 }}>
                         <NativeFinancialChart
                             data={filterRecentQuarters(pbValuationChartData)}
                             title=""
