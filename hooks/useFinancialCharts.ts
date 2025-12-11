@@ -446,7 +446,7 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
 
         if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Lưu chuyển tiền tệ" for SSI (Image 4)
-            // Categories: Q1'21 to Q3'25 (19 quarters)
+            // Categories: Q1'21 to Q3'25 (19 quarters) -> Slice last 8
             const categoriesSSI_CashFlow = [
                 'Q1\'21', 'Q2\'21', 'Q3\'21', 'Q4\'21',
                 'Q1\'22', 'Q2\'22', 'Q3\'22', 'Q4\'22',
@@ -456,31 +456,33 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
             ];
 
             return {
-                categories: categoriesSSI_CashFlow,
+                categories: categoriesSSI_CashFlow.slice(-8),
                 title: 'Lưu chuyển tiền tệ',
                 type: 'mixed' as const,
+                unit: 'Nghìn tỷ',
                 series: [
                     {
                         name: 'Hoạt động đầu tư', // Cyan
-                        data: [0.5, 4.0, 5.5, 2.5, 4.0, 6.5, 2.2, 6.5, -1.0, 4.0, 12.0, -3.0, -3.0, 4.8, 4.8, 6.8, 5.0, 4.5, 6.0],
+                        // Raw has 19. Last 8: -3.0, -3.0, 4.8, 4.8, 6.8, 5.0, 4.5, 6.0
+                        data: [0.5, 4.0, 5.5, 2.5, 4.0, 6.5, 2.2, 6.5, -1.0, 4.0, 12.0, -3.0, -3.0, 4.8, 4.8, 6.8, 5.0, 4.5, 6.0].slice(-8),
                         color: '#00E5FF',
                         type: 'column'
                     },
                     {
                         name: 'Hoạt động kinh doanh', // Purple (Deep Blue/Purple)
-                        data: [-1.0, -4.5, -6.0, -2.0, -4.5, -7.5, -2.0, -6.0, 3.0, -4.0, -12.5, 2.2, 2.2, -3.0, -3.0, -7.0, -5.0, -4.0, -6.5],
+                        data: [-1.0, -4.5, -6.0, -2.0, -4.5, -7.5, -2.0, -6.0, 3.0, -4.0, -12.5, 2.2, 2.2, -3.0, -3.0, -7.0, -5.0, -4.0, -6.5].slice(-8),
                         color: '#651FFF',
                         type: 'column'
                     },
                     {
                         name: 'Hoạt động tài chính', // Green
-                        data: [0.2, 0.2, -0.5, -2.0, 0.5, -1.0, 0.5, 0.5, -3.5, 0.5, -0.5, -3.5, -3.5, -5.5, -5.5, -0.5, -1.0, -2.0, -1.5],
+                        data: [0.2, 0.2, -0.5, -2.0, 0.5, -1.0, 0.5, 0.5, -3.5, 0.5, -0.5, -3.5, -3.5, -5.5, -5.5, -0.5, -1.0, -2.0, -1.5].slice(-8),
                         color: '#A6C852',
                         type: 'column'
                     },
                     {
                         name: 'Tiền và tương đương cuối kì', // Orange Line
-                        data: [0.5, 0.4, 0.3, 0.8, 0.6, 0.5, 0.8, 1.2, 0.5, 0.6, 0.8, 0.5, 0.6, 2.0, 2.0, 0.8, 1.0, 1.2, 1.5],
+                        data: [0.5, 0.4, 0.3, 0.8, 0.6, 0.5, 0.8, 1.2, 0.5, 0.6, 0.8, 0.5, 0.6, 2.0, 2.0, 0.8, 1.0, 1.2, 1.5].slice(-8),
                         color: '#FF6D00',
                         type: 'line'
                     }
@@ -721,25 +723,26 @@ export const useFinancialCharts = (symbol: string, industry?: string) => {
         if (symbol === 'SSI' || industry === 'Dịch vụ tài chính') {
             // "Nguồn vốn" for SSI (Image 6)
             return {
-                categories: categoriesSSI,
+                categories: categoriesSSI.slice(-8),
                 title: 'Nguồn vốn',
                 type: 'stacked' as const,
+                unit: 'Nghìn tỷ',
                 series: [
                     {
                         name: 'Vốn và các quỹ', // Blue (Bottom)
-                        data: [15.0, 14.0, 22.0, 22.0, 23.0, 21.0, 22.0, 23.0, 24.0, 25.0, 27.0, 29.0, 31.0, 32.0, 33.0],
+                        data: [15.0, 14.0, 22.0, 22.0, 23.0, 21.0, 22.0, 23.0, 24.0, 25.0, 27.0, 29.0, 31.0, 32.0, 33.0].slice(-8),
                         color: '#2865C4',
                         stack: 'total'
                     },
                     {
                         name: 'Nợ dài hạn', // Cyan (Middle - tiny)
-                        data: [0, 0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 0, 0, 0, 0, 0],
+                        data: [0, 0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 0, 0, 0, 0, 0].slice(-8),
                         color: '#00E5FF',
                         stack: 'total'
                     },
                     {
                         name: 'Nợ ngắn hạn', // Gold (Top)
-                        data: [35.0, 30.0, 24.0, 30.0, 29.0, 28.0, 33.0, 45.0, 40.0, 45.0, 48.0, 62.0, 69.0, 70.0, 72.0],
+                        data: [35.0, 30.0, 24.0, 30.0, 29.0, 28.0, 33.0, 45.0, 40.0, 45.0, 48.0, 62.0, 69.0, 70.0, 72.0].slice(-8),
                         color: '#F6C554',
                         stack: 'total'
                     },

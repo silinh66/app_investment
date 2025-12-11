@@ -267,7 +267,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                     </View>
 
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 0 }}>
-                        <View style={{ transform: [{ translateX: -45 }] }}>
+                        <View style={{ paddingLeft: 34 }}>
                             {/* Base Chart - Columns */}
                             <BarChart
                                 data={{
@@ -277,7 +277,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                         color: (opacity = 1) => s.color || `rgba(0, 0, 0, ${opacity})`
                                     }))
                                 }}
-                                width={chartWidth + 45}
+                                width={chartWidth - 34}
                                 height={graphHeight}
                                 chartConfig={{
                                     ...chartConfig,
@@ -301,7 +301,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
 
                             {/* Overlay: Line Chart */}
                             {lineSeries.length > 0 && (
-                                <View style={{ position: 'absolute', top: 0, left: 0 }}>
+                                <View style={{ position: 'absolute', top: 0, left: 0, paddingLeft: 34 }}>
                                     <LineChart
                                         data={{
                                             labels: processedLabels,
@@ -312,7 +312,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                                 withDots: false
                                             }))
                                         }}
-                                        width={chartWidth + 45}
+                                        width={chartWidth - 34}
                                         height={graphHeight}
                                         chartConfig={{
                                             ...chartConfig,
@@ -323,7 +323,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                             labelColor: () => 'transparent',
                                         }}
                                         withInnerLines={false}
-                                        style={{ paddingRight: unitRight ? 40 : 0 }}
+                                        style={{ paddingRight: unitRight ? 40 : 0, paddingLeft: 0 }}
                                         withOuterLines={false}
                                         withVerticalLines={false}
                                         withHorizontalLines={false}
@@ -451,7 +451,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                         ))}
                     </View>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 0 }}>
-                        <View style={{ transform: [{ translateX: -45 }] }}>
+                        <View style={{ paddingLeft: 34 }}>
                             <BarChart
                                 data={{
                                     labels: processedLabels,
@@ -460,7 +460,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                         color: (opacity = 1) => s.color || `rgba(0, 0, 0, ${opacity})`
                                     }))
                                 }}
-                                width={Math.max(availableWidth, data.categories.length * 30) + 45}
+                                width={Math.max(availableWidth, data.categories.length * 30) - 34}
                                 height={graphHeight}
                                 chartConfig={{
                                     ...chartConfig,
@@ -468,7 +468,7 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
                                     fillShadowGradientTo: data.series[0]?.color ?? '#00E676',
                                     fillShadowGradientFromOpacity: 1,
                                     fillShadowGradientToOpacity: 1,
-                                    barPercentage: 0.8,
+                                    barPercentage: 0.7,
                                     color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
                                     labelColor: () => 'transparent',
                                 }}
