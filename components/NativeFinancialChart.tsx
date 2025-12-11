@@ -84,447 +84,408 @@ const NativeFinancialChart: React.FC<NativeFinancialChartProps> = ({ data, title
         const availableWidth = screenWidth - 32;
 
         // Stacked Bar Chart (Assets, Revenue Structure, etc.)
+        // Stacked Bar Chart (Assets, Revenue Structure, etc.)
         if (type === 'stacked') {
             const labels = processedLabels;
-            const chartData = data.categories.map((_: any, index: number) => {
-                return data.series.map((s: any) => s.data[index] || 0);
-            });
             const barColors = data.series.map((s: any) => s.color || '#000');
-
-            // Check for negative values (StackedBarChart crashes with negatives)
             const hasNegative = data.series.some((s: any) => s.data.some((v: number) => v < 0));
 
-            if (hasNegative) {
-                // Workaround for Negative Stacked Chart
-                const positiveData = data.categories.map((_: any, index: number) => {
-                    return data.series.map((s: any) => Math.abs(s.data[index] || 0));
-                });
+            // Calculate Max Value for custom Axis
+            // For stacked, we sum the absolute values of columns (approximation for scale)
+            // Actually for proper scale we need max stack height.
+            let maxVal = 0;
+            const positiveData = data.categories.map((_: any, index: number) => {
+                const stackSum = data.series.reduce((sum: number, s: any) => sum + Math.abs(s.data[index] || 0), 0);
+                if (stackSum > maxVal) maxVal = stackSum;
+                return data.series.map((s: any) => Math.abs(s.data[index] || 0));
+            });
 
-                const maxVal = Math.max(...positiveData.map((d: number[]) => d.reduce((a, b) => a + b, 0)));
-                const yAxisSteps = 3;
-                const stepValue = Math.ceil(maxVal / yAxisSteps);
+            const yAxisSteps = 4; // Use 4 steps for better granularity
+            const stepValue = Math.ceil(maxVal / yAxisSteps);
+            const yAxisLabels = Array.from({ length: yAxisSteps + 1 }, (_, i) => (stepValue * i).toFixed(1)); // 0, step, 2step...
 
-                // Calculate dynamic width to ensure alignment
-                const itemWidth = availableWidth / data.categories.length;
-                const chartWidth = itemWidth * data.categories.length;
+            // Determine chart height vs axis
+            const graphHeight = height - 40;
 
-                return (
-                    <View style={{ flexDirection: 'row' }}>
-                        {/* Custom Y-Axis Labels (Left) */}
-                        <View style={{ justifyContent: 'space-between', height: height - 40, paddingBottom: 20, paddingRight: 2, marginLeft: 4 }}>
-                            {[0, 1, 2, 3].map((i) => (
-                                <Text key={i} style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
-                                    {i === 0 ? '0' : `-${i * stepValue}`}
-                                </Text>
-                            ))}
-                        </View>
+            const itemWidth = availableWidth / data.categories.length;
+            const chartWidth = Math.max(availableWidth, itemWidth * data.categories.length);
 
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                            <View>
-                                {/* Flipped Chart */}
-                                <View style={{ transform: [{ scaleY: -1 }] }}>
+            // Conditional Data Handling
+            // If negative, we used the Flipped approach.
+            // If positive, we use Standard.
+
+            return (
+                <View style={{ marginLeft: 10 }}>
+                    {/* Fixed Custom Y-Axis Labels (Absolute Left) */}
+                    <View style={{ position: 'absolute', left: 0, top: 0, zIndex: 10, justifyContent: 'space-between', height: graphHeight, paddingBottom: 0, paddingRight: 4, marginLeft: 4 }}>
+                        {yAxisLabels.reverse().map((label, i) => (
+                            <Text key={i} style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
+                                {hasNegative ? `-${label}` : label}
+                            </Text>
+                        ))}
+                    </View>
+
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 0 }}>
+                        <View>
+                            {hasNegative ? (
+                                /* Flipped Chart for Negative Values */
+                                <View style={{ transform: [{ scaleY: -1 }, { translateX: -45 }] }}>
                                     <StackedBarChart
                                         data={{
                                             labels: processedLabels,
                                             legend: [],
                                             data: positiveData,
-                                            barColors: data.series.map((s: any) => s.color || '#000')
+                                            barColors
                                         }}
-                                        width={chartWidth}
-                                        height={height - 20}
+                                        width={chartWidth + 45}
+                                        height={graphHeight}
                                         chartConfig={{
                                             ...chartConfig,
-                                            barPercentage: 0.6, // Thinner bars
+                                            barPercentage: 0.6,
                                             propsForBackgroundLines: {
                                                 strokeDasharray: "4",
                                                 stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
                                                 strokeWidth: 1
                                             },
                                             color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
-                                            labelColor: () => 'transparent',
+                                            labelColor: () => 'transparent', // Hide internal labels
                                         }}
                                         hideLegend={true}
-                                        style={{ paddingRight: 0 }}
-                                        withHorizontalLabels={false}
                                         withVerticalLabels={false}
+                                        style={{ paddingRight: 0, paddingLeft: 0 }}
                                     />
                                 </View>
-
-                                {/* Custom X-Axis Labels (Bottom) */}
-                                <View style={{ flexDirection: 'row', marginTop: 4, paddingLeft: 0 }}>
-                                    {data.categories.map((label: string, index: number) => (
-                                        <View key={index} style={{ width: itemWidth, alignItems: 'center' }}>
-                                            <Text style={{ fontSize: 10, fontWeight: '600', color: isDark ? '#9CA3AF' : '#6B7280' }}>
-                                                {shouldShowLabel(index, data.categories.length) ? label : ''}
-                                            </Text>
-                                        </View>
-                                    ))}
+                            ) : (
+                                /* Standard Chart for Positive Values */
+                                <View style={{ transform: [{ translateX: -45 }] }}>
+                                    <StackedBarChart
+                                        data={{
+                                            labels: processedLabels,
+                                            legend: [],
+                                            data: positiveData,
+                                            barColors
+                                        }}
+                                        width={chartWidth + 45}
+                                        height={graphHeight}
+                                        // Note: StackedBarChart auto-calculates scale if we don't provide segments/max. 
+                                        // To sync with our custom axis, we might need 'segments'.
+                                        // segments = yAxisSteps. 
+                                        // And 'fromZero'.
+                                        segments={yAxisSteps}
+                                        chartConfig={{
+                                            ...chartConfig,
+                                            barPercentage: 0.6,
+                                            color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                                            labelColor: () => 'transparent', // Hide internal labels
+                                        }}
+                                        hideLegend={true}
+                                        style={{ paddingRight: 0, paddingLeft: 0 }}
+                                        withHorizontalLabels={false} // Hide Y Axis
+                                        withVerticalLabels={false} // Hide X Axis (we render manually below?)
+                                        yAxisLabel=""
+                                        yAxisSuffix=""
+                                    />
                                 </View>
+                            )}
+
+                            {/* Custom X-Axis Labels (Bottom) - Required for Flipped, optional for Standard if we hide chart's */}
+                            {/* To ensure perfect alignment with bars, better to render manually for both. */}
+                            {/* But standard ChartKit renders X labels well. */}
+                            {/* Let's try rendering Custom X Axis for BOTH to be safe and consistent. */}
+                            <View style={{ flexDirection: 'row', marginTop: 4, paddingLeft: 0 }}>
+                                {data.categories.map((label: string, index: number) => (
+                                    <View key={index} style={{ width: itemWidth, alignItems: 'center' }}>
+                                        <Text style={{ fontSize: 10, fontWeight: '600', color: isDark ? '#9CA3AF' : '#6B7280' }}>
+                                            {shouldShowLabel(index, data.categories.length) ? label : ''}
+                                        </Text>
+                                    </View>
+                                ))}
                             </View>
-                        </ScrollView>
-                    </View>
-
-                );
-            }
-
-            return (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 4 }}>
-                    <StackedBarChart
-                        data={{
-                            labels: processedLabels,
-                            legend: [],
-                            data: chartData,
-                            barColors
-                        }}
-                        width={Math.max(availableWidth, labels.length * 30)}
-                        height={height}
-                        chartConfig={{
-                            ...chartConfig,
-                            barPercentage: 0.6, // Thinner bars
-                        }}
-                        hideLegend={true}
-                        style={{ paddingRight: 0, paddingLeft: 0 }}
-                        yAxisLabel=""
-                        yAxisSuffix=""
-                    />
-                </ScrollView>
+                        </View>
+                    </ScrollView >
+                </View >
             );
         }
 
         // Mixed Chart (Column/Stacked + Line Overlay)
         if (type === 'mixed') {
             const columnSeries = data.series.filter((s: any) => s.type === 'column');
-            const lineSeries = data.series.filter((s: any) => s.type === 'line');
+            const lineSeries = data.series.filter((s: any) => s.type === 'line' || s.type === undefined); // Default to line if undefined? No, usually explicitly type.
+            // Actually in useFinancialCharts, mixed has type:'column' and 'line'.
 
             const chartWidth = Math.max(availableWidth, data.categories.length * 30);
 
             // Check if we need complex "Split Stack" values
             const hasNegative = columnSeries.some((s: any) => s.data.some((v: number) => v < 0));
-            const isStackedBase = columnSeries.length > 1;
+            const isStackedBase = columnSeries.length > 1; // If multiple columns for mixed, usually stacked? 
+            // In useFinancialCharts, Mixed usually has 1 column series and 1 line series. 
+            // EXCEPT "Chi phí hoạt động" (SSI) which is Stacked (handled by 'stacked' type).
+            // "Lợi nhuận" has 1 column, 1 line.
 
-            if (hasNegative && isStackedBase) {
-                const posSeries = columnSeries.map((s: any) => ({
-                    ...s,
-                    data: s.data.map((v: number) => Math.max(0, v))
-                }));
-                const negSeries = columnSeries.map((s: any) => ({
-                    ...s,
-                    data: s.data.map((v: number) => Math.abs(Math.min(0, v)))
-                }));
+            // Wait, "Cơ cấu doanh thu" (SSI) is Stacked. "Lợi nhuận" is Mixed.
+            // If "Mixed" has only 1 column series, it's not "Stacked Base".
+            // So lines 226 logic (Split Stacked) was likely for specific complex charts or misinterpretation.
+            // Assuming Standard Mixed logic (Bar + Line) is main target.
 
-                let maxStackVal = 0;
-                data.categories.forEach((_: any, i: number) => {
-                    const posSum = posSeries.reduce((acc: number, s: any) => acc + s.data[i], 0);
-                    const negSum = negSeries.reduce((acc: number, s: any) => acc + s.data[i], 0);
-                    maxStackVal = Math.max(maxStackVal, posSum, negSum);
-                });
+            // Let's implement robust calculation for Standard Mixed.
 
-                const limit = Math.ceil(maxStackVal * 1.1);
-
-                const posDataWithSpacer = data.categories.map((_: any, i: number) => {
-                    const stackSum = posSeries.reduce((acc: number, s: any) => acc + s.data[i], 0);
-                    return [...posSeries.map((s: any) => s.data[i]), limit - stackSum];
-                });
-                const negDataWithSpacer = data.categories.map((_: any, i: number) => {
-                    const stackSum = negSeries.reduce((acc: number, s: any) => acc + s.data[i], 0);
-                    return [...negSeries.map((s: any) => s.data[i]), limit - stackSum];
-                });
-
-                const barColors = [...columnSeries.map((s: any) => s.color), 'transparent'];
-
-                const lineDatasets = lineSeries.map((s: any) => ({
-                    data: s.data,
-                    color: (opacity = 1) => s.color || `rgba(255, 255, 255, ${opacity})`,
-                    strokeWidth: 2,
-                    withDots: false
-                }));
-                lineDatasets.push({
-                    data: new Array(data.categories.length).fill(limit),
-                    color: () => 'transparent',
-                    strokeWidth: 0,
-                    withDots: false
-                });
-                lineDatasets.push({
-                    data: new Array(data.categories.length).fill(-limit),
-                    color: () => 'transparent',
-                    strokeWidth: 0,
-                    withDots: false
-                });
-
-                const halfHeight = height / 2;
-                const fixPadding = 30;
-
-                return (
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 4 }}>
-                        <View style={{ height: height, width: chartWidth }}>
-                            {/* Top Half: Positive Stack */}
-                            <View style={{ height: halfHeight, width: chartWidth, overflow: 'hidden' }}>
-                                <StackedBarChart
-                                    data={{
-                                        labels: processedLabels,
-                                        legend: [],
-                                        data: posDataWithSpacer,
-                                        barColors
-                                    }}
-                                    width={chartWidth}
-                                    height={halfHeight + fixPadding}
-                                    chartConfig={{
-                                        ...chartConfig,
-                                        barPercentage: 0.6, // Thinner bars
-                                        propsForBackgroundLines: { strokeWidth: 0 },
-                                        color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
-                                        labelColor: () => 'transparent',
-                                    }}
-                                    hideLegend={true}
-                                    style={{ paddingRight: 0, paddingLeft: 0 }}
-                                    withHorizontalLabels={false}
-                                    withVerticalLabels={false}
-                                />
-                            </View>
-
-                            {/* Bottom Half: Negative Stack (Flipped) */}
-                            <View style={{ height: halfHeight, width: chartWidth, transform: [{ scaleY: -1 }], overflow: 'hidden' }}>
-                                <StackedBarChart
-                                    data={{
-                                        labels: processedLabels,
-                                        legend: [],
-                                        data: negDataWithSpacer,
-                                        barColors
-                                    }}
-                                    width={chartWidth}
-                                    height={halfHeight + fixPadding}
-                                    chartConfig={{
-                                        ...chartConfig,
-                                        barPercentage: 0.6, // Thinner bars
-                                        propsForBackgroundLines: { strokeWidth: 0 },
-                                        color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
-                                        labelColor: () => 'transparent',
-                                    }}
-                                    hideLegend={true}
-                                    style={{ paddingRight: 0, paddingLeft: 0 }}
-                                    withHorizontalLabels={false}
-                                    withVerticalLabels={false}
-                                />
-                            </View>
-
-                            {/* Overlay: Line Chart */}
-                            <View style={{ position: 'absolute', top: 0, left: 0, height: height, width: chartWidth }} pointerEvents="none">
-                                <LineChart
-                                    data={{
-                                        labels: processedLabels,
-                                        datasets: lineDatasets
-                                    }}
-                                    width={chartWidth}
-                                    height={height}
-                                    chartConfig={{
-                                        ...chartConfig,
-                                        backgroundGradientFromOpacity: 0,
-                                        backgroundGradientToOpacity: 0,
-                                        fillShadowGradientFromOpacity: 0,
-                                        fillShadowGradientToOpacity: 0,
-                                        propsForBackgroundLines: {
-                                            strokeDasharray: "4",
-                                            stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
-                                            strokeWidth: 1
-                                        },
-                                        color: (opacity = 1) => lineSeries[0]?.color || `rgba(255, 255, 255, ${opacity})`,
-                                        labelColor: (opacity = 1) => isDark ? `rgba(156, 163, 175, ${opacity})` : `rgba(107, 114, 128, ${opacity})`,
-                                    }}
-                                    withInnerLines={true}
-                                    withOuterLines={false}
-                                    withVerticalLines={false}
-                                    withHorizontalLines={true}
-                                    fromZero={false}
-                                    bezier
-                                    withDots={false}
-                                    withShadow={false}
-                                    yAxisLabel=""
-                                    yAxisSuffix=""
-                                    segments={4}
-                                    style={{ paddingRight: 0 }}
-                                />
-                            </View>
-                        </View>
-                    </ScrollView>
-                );
+            // Combine all data to find Max
+            let allData: number[] = [];
+            columnSeries.forEach((s: any) => allData.push(...s.data));
+            // Only include Line series in Max calculation if they share the unit (Left Axis)
+            // If unitRight is set, line might be on secondary axis.
+            if (!unitRight) {
+                lineSeries.forEach((s: any) => allData.push(...s.data));
             }
 
-            // Config for BarChart to ensure bars are visible (Solid 100% opacity)
-            const barChartConfig = {
-                ...chartConfig,
-                fillShadowGradientFrom: columnSeries[0]?.color ?? '#00E676',
-                fillShadowGradientTo: columnSeries[0]?.color ?? '#00E676',
-                fillShadowGradientFromOpacity: 1,
-                fillShadowGradientToOpacity: 1,
-                barPercentage: 0.7, // Thicker bars like sample
-            };
+            const maxVal = Math.max(...allData, 0.1);
+            // If negative exists in Mixed (e.g. Profit can be constant negative?), we need FromZero?
+            // BarChart 'fromZero' usually handles it.
+            // If we have negatives, we need range [min, max].
+            const minVal = Math.min(...allData, 0);
+
+            const range = maxVal - minVal;
+            const yAxisSteps = 4;
+            const stepValue = range / yAxisSteps;
+            const yAxisLabels = Array.from({ length: yAxisSteps + 1 }, (_, i) => (minVal + stepValue * i).toFixed(1));
+            if (minVal === 0 && maxVal > 1000) {
+                // Format large numbers? The user scales data by 1000 already.
+            }
+
+            const graphHeight = height;
 
             return (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 4 }}>
-                    <View>
-                        {/* Base Chart - Columns */}
-                        <BarChart
-                            data={{
-                                labels: processedLabels,
-                                datasets: columnSeries.map((s: any) => ({
-                                    data: s.data,
-                                    color: (opacity = 1) => s.color || `rgba(0, 0, 0, ${opacity})`
-                                }))
-                            }}
-                            width={chartWidth}
-                            height={height}
-                            chartConfig={barChartConfig}
-                            withInnerLines={true}
-                            showBarTops={false}
-                            style={{ paddingRight: unitRight ? 40 : 0 }} // Add padding for right axis if needed
-                            fromZero={true}
-                            yAxisLabel=""
-                            yAxisSuffix={yAxisSuffixLeft || ""}
-                        />
-
-                        {/* Overlay: Line Chart */}
-                        {lineSeries.length > 0 && (
-                            <View style={{ position: 'absolute', top: 0, left: 0 }}>
-                                <LineChart
-                                    data={{
-                                        labels: processedLabels,
-                                        datasets: lineSeries.map((s: any) => ({
-                                            data: s.data,
-                                            color: (opacity = 1) => s.color || `rgba(255, 255, 255, ${opacity})`,
-                                            strokeWidth: 2,
-                                            withDots: false
-                                        }))
-                                    }}
-                                    width={chartWidth}
-                                    height={height}
-                                    chartConfig={{
-                                        ...chartConfig,
-                                        backgroundGradientFromOpacity: 0,
-                                        backgroundGradientToOpacity: 0,
-                                        propsForBackgroundLines: { strokeWidth: 0 },
-                                        color: (opacity = 1) => lineSeries[0].color || `rgba(255, 255, 255, ${opacity})`,
-                                        // Hide Left Y-Axis labels if we are in dual axis mode (assume Line is Right Axis)
-                                        // We set labelColor to transparent for Y-axis? No, that hides X-axis too.
-                                        // We can use yAxisLabel with a special character or just let them overlap if we don't handle it?
-                                        // Better: If unitRight is set, we assume this LineChart corresponds to Right Axis.
-                                        // React Native Chart Kit doesn't support hiding ONLY Y-axis labels via config easily.
-                                        // But we can set `withVerticalLabels={false}` (Hides X-Axis labels - which we want, as BarChart has them).
-                                        // Wait, `withVerticalLabels` controls X-axis labels (vertical lines).
-                                        // `withHorizontalLabels` controls Y-axis labels.
-                                    }}
-                                    withInnerLines={false}
-                                    style={{ paddingRight: unitRight ? 40 : 0 }}
-                                    withOuterLines={false}
-                                    withVerticalLines={false}
-                                    withHorizontalLines={false}
-                                    fromZero={false} // Line chart might go negative (growth %)
-                                    bezier
-                                    withDots={false}
-                                    withShadow={false}
-                                    yAxisLabel=""
-                                    yAxisSuffix={unitRight || ""}
-                                    withVerticalLabels={false} // Hide X-Axis labels on overlay to prevent overlap with BarChart
-                                    withHorizontalLabels={!unitRight} // Hide Left Y-Axis labels if we want to simulate Right Axis visually?
-                                // Actually if we hide Left Labels, we still need to render Right Labels.
-                                // ChartKit doesn't render Right Labels.
-                                // We will render a second LineChart for the Right Labels?? No.
-                                // For now, let's keep it simple: Render LineChart on top. If unitRight is used, we might accept that it renders on Left (standard overlap) OR we try to move it.
-                                // The user sample has 2 columns (axes).
-                                // If we can't move it to right easily, at least ensure it renders.
-                                />
-                                {unitRight && (
-                                    // Manual Right Axis Labels Simulation
-                                    <View style={{ position: 'absolute', right: 0, top: 10, height: height - 20, justifyContent: 'space-between' }}>
-                                        <Text style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
-                                            {Math.max(...lineSeries[0].data)}%
-                                        </Text>
-                                        <Text style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
-                                            0%
-                                        </Text>
-                                        <Text style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
-                                            {Math.min(...lineSeries[0].data)}%
-                                        </Text>
-                                    </View>
-                                )}
-                            </View>
-                        )}
+                <View style={{ marginLeft: 10 }}>
+                    {/* Fixed Custom Y-Axis Labels (Absolute Left) */}
+                    <View style={{ position: 'absolute', left: 0, top: 10, zIndex: 10, justifyContent: 'space-between', height: graphHeight - 48, paddingBottom: 0, paddingRight: 4, marginLeft: 4 }}>
+                        {/* marginTop to align with grid top? */}
+                        {yAxisLabels.reverse().map((label, i) => (
+                            <Text key={i} style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
+                                {label}{yAxisSuffixLeft || ''}
+                            </Text>
+                        ))}
                     </View>
-                </ScrollView>
+
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 0 }}>
+                        <View style={{ transform: [{ translateX: -45 }] }}>
+                            {/* Base Chart - Columns */}
+                            <BarChart
+                                data={{
+                                    labels: processedLabels,
+                                    datasets: columnSeries.map((s: any) => ({
+                                        data: s.data,
+                                        color: (opacity = 1) => s.color || `rgba(0, 0, 0, ${opacity})`
+                                    }))
+                                }}
+                                width={chartWidth + 45}
+                                height={graphHeight}
+                                chartConfig={{
+                                    ...chartConfig,
+                                    fillShadowGradientFrom: columnSeries[0]?.color ?? '#00E676',
+                                    fillShadowGradientTo: columnSeries[0]?.color ?? '#00E676',
+                                    fillShadowGradientFromOpacity: 1,
+                                    fillShadowGradientToOpacity: 1,
+                                    barPercentage: 0.7,
+                                    color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                                    labelColor: () => 'transparent', // Hide internal labels
+                                }}
+                                segments={yAxisSteps} // Force steps
+                                fromZero={minVal >= 0}
+                                withInnerLines={true}
+                                showBarTops={false}
+                                style={{ paddingRight: unitRight ? 40 : 0, paddingLeft: 0 }} // Add padding for right axis if needed
+                                withHorizontalLabels={false} // Hide Y Axis
+                                yAxisLabel=""
+                                yAxisSuffix=""
+                            />
+
+                            {/* Overlay: Line Chart */}
+                            {lineSeries.length > 0 && (
+                                <View style={{ position: 'absolute', top: 0, left: 0 }}>
+                                    <LineChart
+                                        data={{
+                                            labels: processedLabels,
+                                            datasets: lineSeries.map((s: any) => ({
+                                                data: s.data,
+                                                color: (opacity = 1) => s.color || `rgba(255, 255, 255, ${opacity})`,
+                                                strokeWidth: 2,
+                                                withDots: false
+                                            }))
+                                        }}
+                                        width={chartWidth + 45}
+                                        height={graphHeight}
+                                        chartConfig={{
+                                            ...chartConfig,
+                                            backgroundGradientFromOpacity: 0,
+                                            backgroundGradientToOpacity: 0,
+                                            propsForBackgroundLines: { strokeWidth: 0 },
+                                            color: (opacity = 1) => lineSeries[0]?.color || `rgba(255, 255, 255, ${opacity})`,
+                                            labelColor: () => 'transparent',
+                                        }}
+                                        withInnerLines={false}
+                                        style={{ paddingRight: unitRight ? 40 : 0 }}
+                                        withOuterLines={false}
+                                        withVerticalLines={false}
+                                        withHorizontalLines={false}
+                                        fromZero={false}
+                                        bezier
+                                        withDots={false}
+                                        withShadow={false}
+                                        yAxisLabel=""
+                                        yAxisSuffix=""
+                                        withVerticalLabels={false}
+                                        withHorizontalLabels={false}
+                                        segments={yAxisSteps} // Match segments
+                                    />
+                                    {unitRight && (
+                                        // Simple Right Axis Labels (Simulated)
+                                        <View style={{ position: 'absolute', right: 0, top: 10, height: height - 60, justifyContent: 'space-between' }}>
+                                            <Text style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
+                                                {/* Calculate Max for Line separately if unitRight? */}
+                                                Max%
+                                            </Text>
+                                            <Text style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
+                                                Min%
+                                            </Text>
+                                        </View>
+                                    )}
+                                </View>
+                            )}
+                        </View>
+                    </ScrollView>
+                </View>
             );
         }
 
         // Line Chart (Debt Ratio)
         if (type === 'line') {
+            const chartData = data.series[0].data;
+            const minVal = Math.min(...chartData, 0);
+            const maxVal = Math.max(...chartData);
+            const range = maxVal - minVal;
+            const yAxisSteps = 4;
+            const stepValue = range / yAxisSteps;
+            const yAxisLabels = Array.from({ length: yAxisSteps + 1 }, (_, i) => (minVal + stepValue * i).toFixed(1));
+            const graphHeight = height;
+
+            // TODO: Ensure ChartKit scales to this Exact range? 
+            // We can pass `fromZero` if min >= 0.
+            // If we have negatives, LineChart handles it.
+
             return (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 4 }}>
-                    <LineChart
-                        data={{
-                            labels: processedLabels,
-                            datasets: data.series.map((s: any) => ({
-                                data: s.data,
-                                color: (opacity = 1) => s.color || `rgba(255, 255, 255, ${opacity})`,
-                                strokeWidth: 2,
-                                withDots: false
-                            }))
-                        }}
-                        width={Math.max(availableWidth, data.categories.length * 35)}
-                        height={height}
-                        chartConfig={{
-                            ...chartConfig,
-                            backgroundGradientFromOpacity: 0,
-                            backgroundGradientToOpacity: 0,
-                            propsForBackgroundLines: {
-                                strokeDasharray: "4",
-                                stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
-                                strokeWidth: 1
-                            },
-                            decimalPlaces: 1,
-                        }}
-                        bezier
-                        withDots={false}
-                        withShadow={false}
-                        withInnerLines={true}
-                        withOuterLines={false}
-                        withVerticalLines={false}
-                        withHorizontalLines={true}
-                        fromZero={true}
-                        yAxisLabel=""
-                        yAxisSuffix="%"
-                        style={{ paddingRight: 0, paddingLeft: 0 }}
-                    />
-                </ScrollView>
+                <View style={{ marginLeft: 10 }}>
+                    <View style={{ position: 'absolute', left: 0, top: 10, zIndex: 10, justifyContent: 'space-between', height: graphHeight - 48, paddingBottom: 0, paddingRight: 4, marginLeft: 4 }}>
+                        {yAxisLabels.reverse().map((label, i) => (
+                            <Text key={i} style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
+                                {label}{unit === '%' ? '%' : ''}
+                            </Text>
+                        ))}
+                    </View>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 0 }}>
+                        <View style={{ transform: [{ translateX: -45 }] }}>
+                            <LineChart
+                                data={{
+                                    labels: processedLabels,
+                                    datasets: data.series.map((s: any) => ({
+                                        data: s.data,
+                                        color: (opacity = 1) => s.color || `rgba(255, 255, 255, ${opacity})`,
+                                        strokeWidth: 2,
+                                        withDots: false
+                                    }))
+                                }}
+                                width={Math.max(availableWidth, data.categories.length * 35) + 45}
+                                height={graphHeight}
+                                chartConfig={{
+                                    ...chartConfig,
+                                    backgroundGradientFromOpacity: 0,
+                                    backgroundGradientToOpacity: 0,
+                                    propsForBackgroundLines: {
+                                        strokeDasharray: "4",
+                                        stroke: isDark ? "rgba(55, 65, 81, 0.4)" : "rgba(229, 231, 235, 0.5)",
+                                        strokeWidth: 1
+                                    },
+                                    decimalPlaces: 1,
+                                    color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                                    labelColor: () => 'transparent',
+                                }}
+                                bezier
+                                withDots={false}
+                                withShadow={false}
+                                withInnerLines={true}
+                                withOuterLines={false}
+                                withVerticalLines={false}
+                                withHorizontalLines={true}
+                                fromZero={minVal >= 0}
+                                segments={yAxisSteps}
+                                yAxisLabel=""
+                                yAxisSuffix="" // Suffix handled in custom labels
+                                withHorizontalLabels={false}
+                                style={{ paddingRight: 0, paddingLeft: 0 }}
+                            />
+                        </View>
+                    </ScrollView>
+                </View>
             );
         }
 
         // Default: Column Chart (for Expenses - Negative)
-        return (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 4 }}>
-                <BarChart
-                    data={{
-                        labels: processedLabels,
-                        datasets: data.series.map((s: any) => ({
-                            data: s.data,
-                            color: (opacity = 1) => s.color || `rgba(0, 0, 0, ${opacity})`
-                        }))
-                    }}
-                    width={Math.max(availableWidth, data.categories.length * 30)}
-                    height={height}
-                    chartConfig={{
-                        ...chartConfig,
-                        fillShadowGradientFrom: data.series[0]?.color ?? '#00E676',
-                        fillShadowGradientTo: data.series[0]?.color ?? '#00E676',
-                        fillShadowGradientFromOpacity: 1,
-                        fillShadowGradientToOpacity: 1,
-                        barPercentage: 0.7,
-                    }}
-                    showBarTops={false}
-                    style={{ paddingRight: 0, paddingLeft: 0 }}
-                    fromZero={true} // Important for negative values
-                    yAxisLabel=""
-                    yAxisSuffix={yAxisSuffixLeft || ""}
-                />
-            </ScrollView>
-        );
+        {
+            // Calculate scale for BarChart
+            let allData: number[] = [];
+            data.series.forEach((s: any) => allData.push(...s.data));
+            const maxVal = Math.max(...allData, 0);
+            const minVal = Math.min(...allData, 0);
+            const range = maxVal - minVal;
+            const yAxisSteps = 4;
+            const stepValue = range / yAxisSteps || 1;
+            const yAxisLabels = Array.from({ length: yAxisSteps + 1 }, (_, i) => (minVal + stepValue * i).toFixed(1));
+            const graphHeight = height;
+
+            return (
+                <View style={{ marginLeft: 10 }}>
+                    <View style={{ position: 'absolute', left: 0, top: 10, zIndex: 10, justifyContent: 'space-between', height: graphHeight - 48, paddingBottom: 0, paddingRight: 4, marginLeft: 4 }}>
+                        {yAxisLabels.reverse().map((label, i) => (
+                            <Text key={i} style={{ fontSize: 10, color: isDark ? '#9CA3AF' : '#6B7280', textAlign: 'right' }}>
+                                {label}{yAxisSuffixLeft || ''}
+                            </Text>
+                        ))}
+                    </View>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginLeft: 0 }}>
+                        <View style={{ transform: [{ translateX: -45 }] }}>
+                            <BarChart
+                                data={{
+                                    labels: processedLabels,
+                                    datasets: data.series.map((s: any) => ({
+                                        data: s.data,
+                                        color: (opacity = 1) => s.color || `rgba(0, 0, 0, ${opacity})`
+                                    }))
+                                }}
+                                width={Math.max(availableWidth, data.categories.length * 30) + 45}
+                                height={graphHeight}
+                                chartConfig={{
+                                    ...chartConfig,
+                                    fillShadowGradientFrom: data.series[0]?.color ?? '#00E676',
+                                    fillShadowGradientTo: data.series[0]?.color ?? '#00E676',
+                                    fillShadowGradientFromOpacity: 1,
+                                    fillShadowGradientToOpacity: 1,
+                                    barPercentage: 0.7,
+                                    color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                                    labelColor: () => 'transparent',
+                                }}
+                                showBarTops={false}
+                                style={{ paddingRight: 0, paddingLeft: 0 }}
+                                fromZero={true} // Important for negative values? BarChart handles it.
+                                // If min < 0, FromZero=true works for BarChart.
+                                segments={yAxisSteps}
+                                withHorizontalLabels={false}
+                                yAxisLabel=""
+                                yAxisSuffix=""
+                            />
+                        </View>
+                    </ScrollView>
+                </View>
+            );
+        }
     };
 
     return (
